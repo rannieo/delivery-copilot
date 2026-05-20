@@ -5,8 +5,8 @@ import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-ou
 import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 import { deliveryWorkflowModelSettings } from "../../config";
 import { coerceAgentArtifactPayload } from "../../helpers/structured-output";
-import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service.ts";
-import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval.ts";
+import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service";
+import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval";
 
 const STRUCTURED_OUTPUT_ADDENDUM = `
 

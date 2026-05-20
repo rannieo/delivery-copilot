@@ -7,8 +7,8 @@ import { deliveryWorkflowModelSettings } from "../../config";
 import { coerceFinalPlanPayload } from "../../helpers/structured-output";
 import { saveFinalPlan } from "../../../db/repositories/final-plan-repository";
 import { completeWorkflowRun } from "../../../db/repositories/workflow-run-repository";
-import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service.ts";
-import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval.ts";
+import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service";
+import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval";
 
 export const finalAggregatorStep = createStep({
   id: "final-aggregator-step",
