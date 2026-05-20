@@ -39,7 +39,7 @@ Rules:
 9. If AI generation exists, include generation loading state, streaming or non-streaming behavior, retry, cancellation, and output review UX.
 10. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Frontend Implementation Plan
 
@@ -183,10 +183,4 @@ For each risk:
 
 ## 16. Implementation Sequence
 List the recommended frontend build order.
-
-## 17. Handoff Summary for Mobile Lead Agent
-Summarize what mobile must not duplicate and what mobile should decide separately.
-
-## 18. Handoff Summary for QA Agent
-Summarize what QA must validate in the web UI.
 `;

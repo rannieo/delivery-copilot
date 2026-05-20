@@ -14,9 +14,11 @@ This is a **Mastra** project written in TypeScript. Mastra is a framework for bu
 ## Commands
 
 ```bash
-npm run dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
-npm run build # Build a production-ready server
+pnpm dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
+pnpm build # Build a production-ready server
 ```
+
+This project uses **pnpm** (lockfile: `pnpm-lock.yaml`). Do not run `npm install` — it will create a parallel `package-lock.json` and break the lockfile contract.
 
 ## Project Structure
 
@@ -48,7 +50,7 @@ Top-level files define how your Mastra project is configured, built, and connect
 - Load the `mastra` skill before any Mastra-related work
 - Register new agents, tools, workflows, and scorers in `src/mastra/index.ts`
 - Use schemas for tool inputs and outputs
-- Run `npm run build` to verify changes compile
+- Run `pnpm build` to verify changes compile
 
 ### Never do
 

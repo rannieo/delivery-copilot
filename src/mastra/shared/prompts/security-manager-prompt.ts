@@ -38,7 +38,7 @@ Rules:
 9. If AI/RAG is involved, check prompt injection, data leakage, retrieval boundaries, unsafe tool use, and auditability.
 10. If third-party integrations are involved, check secrets, scopes, retries, webhooks, and data exposure.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Security Review and Control Plan
 
@@ -185,10 +185,4 @@ Use this format:
 - Given [security context]
 - When [action]
 - Then [expected secure behavior]
-
-## 15. Handoff Summary for Backend Lead
-Summarize the security controls that must be included in API, DB, services, jobs, and logging.
-
-## 16. Handoff Summary for QA Agent
-Summarize security test cases that QA must validate.
 `;

@@ -15,19 +15,7 @@ function truncateText(text: string | undefined | null, maxChars: number): string
   return `${text.slice(0, maxChars)}\n...[truncated ${text.length - maxChars} chars]`;
 }
 
-function renderFullButBoundedArtifacts(artifacts: DeliveryArtifact[]): string {
-  return artifacts
-    .map((artifact, index) => {
-      return `
-## Artifact ${index + 1}
-Agent: ${artifact.agentName}
-Type: ${artifact.artifactType}
-
-${truncateText(artifact.markdown, 2500)}
-`;
-    })
-    .join("\n---\n");
-}
+const RAW_INPUT_CONTEXT_LIMIT = 16_000;
 
 function renderCompactArtifacts(artifacts: DeliveryArtifact[]): string {
   if (artifacts.length === 0) {
@@ -42,7 +30,7 @@ Agent: ${artifact.agentName}
 Type: ${artifact.artifactType}
 
 Summary:
-${truncateText(artifact.summary, 800)}
+${artifact.summary}
 
 Key Risks:
 ${artifact.risks.slice(0, 3).map((risk) => `- ${risk}`).join("\n") || "- None"}
@@ -80,17 +68,15 @@ export function buildAgentPrompt(params: {
   rawInput: string;
   artifacts: DeliveryArtifact[];
   specificInstruction: string;
-  includeFullArtifacts?: boolean;
 }): string {
-  const previousArtifacts = params.includeFullArtifacts
-    ? renderFullButBoundedArtifacts(params.artifacts)
-    : renderCompactArtifacts(params.artifacts);
+  const previousArtifacts = renderCompactArtifacts(params.artifacts);
 
   return `
 You are running inside the Delivery Copilot workflow.
 
 Rules:
-- Return only the requested Markdown artifact.
+- Return only the requested structured response.
+- Put the complete requested Markdown artifact in the "markdown" field.
 - Be concise but complete.
 - Do not repeat previous agent outputs.
 - Do not invent missing information.
@@ -99,7 +85,7 @@ Project ID:
 ${params.projectId}
 
 Raw Project Input:
-${truncateText(params.rawInput, 4000)}
+${truncateText(params.rawInput, RAW_INPUT_CONTEXT_LIMIT)}
 
 Previous Agent Outputs:
 ${previousArtifacts}

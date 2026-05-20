@@ -23,7 +23,7 @@ Think like a strong manual QA plus QA engineer. Your output should be usable by 
 
 Do not only test happy paths. Prioritize real-world failure scenarios, permissions, invalid input, missing data, duplicate actions, and integration failures.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # QA Test Plan
 
@@ -85,7 +85,4 @@ Create a checklist before production release.
 
 ## 13. QA Risks and Open Questions
 List risks and questions that need clarification.
-
-## 14. Handoff Summary for Delivery Manager
-Summarize the testing effort and important dependencies.
 `;

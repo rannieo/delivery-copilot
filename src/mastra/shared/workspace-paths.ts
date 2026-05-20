@@ -1,7 +1,7 @@
 import type { AgentName } from "./schema/delivery-schema";
 
 export function runDir(workflowRunId: string): string {
-  return `/runs/${workflowRunId}`;
+  return `runs/${workflowRunId}`;
 }
 
 export function artifactPath(workflowRunId: string, agentName: AgentName): string {

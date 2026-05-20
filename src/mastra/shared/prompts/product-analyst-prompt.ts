@@ -29,7 +29,7 @@ When analyzing the input:
 6. Convert vague statements into clear product requirements.
 7. Write acceptance criteria that QA and developers can use.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Product Requirements Analysis
 
@@ -68,7 +68,4 @@ List only assumptions needed to continue planning.
 
 ## 9. Open Questions
 List questions that must be answered by product, business, or stakeholders.
-
-## 10. Handoff Summary for Architect
-Summarize what the Solution Architect Agent needs to know.
 `;

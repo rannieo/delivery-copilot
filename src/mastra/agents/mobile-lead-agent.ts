@@ -2,7 +2,6 @@ import { Agent } from "@mastra/core/agent";
 import { mobileLeadPrompt } from "../shared/prompts/mobile-lead-prompt";
 import { defaultAgentModelConfig } from "../config";
 import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool";
-import { saveAgentOutputTool } from "../tools/save-agent-output-tool";
 
 export const mobileLeadAgent = new Agent({
   id: "mobile-lead-agent",
@@ -14,7 +13,6 @@ ${mobileLeadPrompt}
 
 Tool usage rules:
 - Use retrieveProjectContextTool to read Product Analyst, Solution Architect, Security Agent, Backend Lead, and Frontend Lead outputs.
-- Use saveAgentOutputTool after producing the final Mobile Implementation Plan.
 - Backend Lead output is mandatory context because mobile screens must align with API design.
 - Security Agent output is mandatory context because mobile must reflect auth, token storage, permissions, masking, and safe error states.
 - Frontend Lead output is mandatory context so mobile-specific scope does not duplicate responsive web scope.
@@ -23,6 +21,5 @@ Tool usage rules:
   model: defaultAgentModelConfig,
   tools: {
     retrieveProjectContextTool,
-    saveAgentOutputTool,
   },
 });

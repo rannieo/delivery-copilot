@@ -1,5 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema, DeliveryWorkflowResultSchema } from "../../shared/schema/delivery-schema";
+import { FinalPlanOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
 import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 import { finalPlanPath, runDir } from "../../shared/workspace-paths";
 import { saveFinalPlan } from "../../../db/repositories/final-plan-repository";
@@ -46,14 +47,31 @@ The final document must include:
 
 Do not add unsupported requirements.
 Preserve important risks, assumptions, and open questions.
+
+Return a structured response matching the requested schema with a single "markdown" field containing the full final document.
 `,
       }),
+      {
+        structuredOutput: {
+          schema: FinalPlanOutputSchema,
+          useAgent: true,
+        },
+      },
     );
+
+    const payload = response.object;
+    if (!payload) {
+      throw new Error(
+        `Final aggregator returned no structured object. Raw text: ${response.text?.slice(0, 200)}`,
+      );
+    }
+
+    const finalMarkdown = payload.markdown;
 
     const artifact = buildArtifact({
       agentName: "final_aggregator",
       artifactType: "final_technical_delivery_plan",
-      markdown: response.text,
+      markdown: finalMarkdown,
     });
 
     await persistArtifact({
@@ -70,7 +88,7 @@ Preserve important risks, assumptions, and open questions.
 
     const planPath = finalPlanPath(inputData.workflowRunId);
     await workspace.filesystem.mkdir(runDir(inputData.workflowRunId), { recursive: true });
-    await workspace.filesystem.writeFile(planPath, response.text);
+    await workspace.filesystem.writeFile(planPath, finalMarkdown);
 
     await saveFinalPlan({
       projectId: inputData.projectId,
@@ -85,7 +103,7 @@ Preserve important risks, assumptions, and open questions.
       projectId: inputData.projectId,
       workflowRunId: inputData.workflowRunId,
       planTitle,
-      finalMarkdown: response.text,
+      finalMarkdown,
       artifacts: [...inputData.artifacts, artifact],
     };
   },

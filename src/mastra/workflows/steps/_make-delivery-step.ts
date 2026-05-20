@@ -1,7 +1,18 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
 import type { AgentName } from "../../shared/schema/delivery-schema";
+import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
 import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
+
+const STRUCTURED_OUTPUT_ADDENDUM = `
+
+Return a structured response matching the requested schema:
+- "markdown": the full artifact as a single Markdown document with every section required above.
+- "summary": a 2-4 sentence executive summary in plain prose (no markdown).
+- "assumptions": array of concrete single-sentence strings; [] if none.
+- "risks": array of concrete single-sentence strings; [] if none.
+- "openQuestions": array of concrete stakeholder-answerable single-sentence strings; [] if none.
+`;
 
 export function makeDeliveryStep(opts: {
   id: string;
@@ -27,14 +38,31 @@ export function makeDeliveryStep(opts: {
           projectId: inputData.projectId,
           rawInput: inputData.rawInput,
           artifacts: inputData.artifacts,
-          specificInstruction: opts.instruction,
+          specificInstruction: opts.instruction + STRUCTURED_OUTPUT_ADDENDUM,
         }),
+        {
+          structuredOutput: {
+            schema: AgentArtifactOutputSchema,
+            useAgent: true,
+          },
+        },
       );
+
+      const payload = response.object;
+      if (!payload) {
+        throw new Error(
+          `Agent ${opts.agentId} returned no structured object. Raw text: ${response.text?.slice(0, 200)}`,
+        );
+      }
 
       const artifact = buildArtifact({
         agentName: opts.agentName,
         artifactType: opts.artifactType,
-        markdown: response.text,
+        markdown: payload.markdown,
+        summary: payload.summary,
+        assumptions: payload.assumptions,
+        risks: payload.risks,
+        openQuestions: payload.openQuestions,
       });
 
       await persistArtifact({

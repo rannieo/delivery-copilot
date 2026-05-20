@@ -18,9 +18,18 @@ import { failWorkflowRunByMastraRunId } from "../../db/repositories/workflow-run
 const FAILED_TERMINAL_STATUSES = new Set(["failed", "tripwire", "canceled", "bailed"]);
 
 function stringifyError(error: unknown, fallback: string): string {
+  if (!error) return fallback;
   if (error instanceof Error) return error.message;
-  if (error === undefined || error === null) return fallback;
-  return String(error);
+  if (typeof error === "string") return error;
+  if (typeof error === "object" && "message" in error) {
+    const msg = (error as { message: unknown }).message;
+    if (typeof msg === "string" && msg.length > 0) return msg;
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return fallback;
+  }
 }
 
 export const deliveryCopilotWorkflow = createWorkflow({

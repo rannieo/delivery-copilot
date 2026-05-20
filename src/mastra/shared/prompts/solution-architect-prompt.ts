@@ -32,7 +32,7 @@ When proposing architecture:
 7. Identify risks and tradeoffs.
 8. Recommend an MVP architecture and possible future evolution.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Solution Architecture Proposal
 
@@ -109,7 +109,4 @@ Format:
 - ADR Title:
 - Decision Needed:
 - Options:
-
-## 12. Handoff Summary for Backend Lead
-Summarize what the Backend Lead Agent needs to design next.
 `;

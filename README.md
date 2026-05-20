@@ -35,20 +35,23 @@ rawInput
 ## Getting started
 
 ```shell
-npm install
+pnpm install
 cp .env.example .env   # add your model provider key(s)
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:4111](http://localhost:4111) to use [Mastra Studio](https://mastra.ai/docs/studio/overview) — an interactive UI for invoking the `deliveryCopilotWorkflow`, inspecting per-agent artifacts, and reviewing traces.
 
 ## Scripts
 
-| Command         | What it does                                |
-| --------------- | ------------------------------------------- |
-| `npm run dev`   | Start Mastra Studio at `localhost:4111`     |
-| `npm run build` | Build a production-ready server bundle      |
-| `npm start`     | Run the built server                        |
+| Command          | What it does                                |
+| ---------------- | ------------------------------------------- |
+| `pnpm dev`       | Start Mastra Studio at `localhost:4111`     |
+| `pnpm build`     | Build a production-ready server bundle      |
+| `pnpm start`     | Run the built server                        |
+| `pnpm db:generate` | Generate a Drizzle migration from `src/db/schema.ts` |
+| `pnpm db:migrate`  | Apply pending migrations to `DATABASE_URL`           |
+| `pnpm db:studio`   | Open Drizzle Studio against `DATABASE_URL`           |
 
 ## Storage & observability
 
