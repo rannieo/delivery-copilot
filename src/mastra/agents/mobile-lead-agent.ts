@@ -1,7 +1,7 @@
 import { Agent } from "@mastra/core/agent";
-import { mobileLeadPrompt } from "../shared/prompts/mobile-lead-prompt";
-import { defaultAgentModelConfig } from "../config";
-import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool";
+import { mobileLeadPrompt } from "../shared/prompts/mobile-lead-prompt.ts";
+import { defaultAgentModelConfig } from "../config/index.ts";
+import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool.ts";
 
 export const mobileLeadAgent = new Agent({
   id: "mobile-lead-agent",

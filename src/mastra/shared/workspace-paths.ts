@@ -1,4 +1,4 @@
-import type { AgentName } from "./schema/delivery-schema";
+import type { AgentName } from "./schema/delivery-schema.ts";
 
 export function runDir(workflowRunId: string): string {
   return `runs/${workflowRunId}`;

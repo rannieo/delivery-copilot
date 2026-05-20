@@ -1,8 +1,8 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { solutionArchitectPrompt } from '../shared/prompts/solution-architect-prompt';
-import { defaultAgentModelConfig } from '../config';
-import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
+import { solutionArchitectPrompt } from '../shared/prompts/solution-architect-prompt.ts';
+import { defaultAgentModelConfig } from '../config/index.ts';
+import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool.ts';
 
 export const solutionArchitectAgent = new Agent({
   id: 'solution-architect-agent',

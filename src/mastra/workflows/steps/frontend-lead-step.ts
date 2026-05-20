@@ -1,4 +1,4 @@
-import { makeDeliveryStep } from "./_make-delivery-step";
+import { makeDeliveryStep } from "./_make-delivery-step.ts";
 
 export const frontendLeadStep = makeDeliveryStep({
   id: "frontend-lead-step",

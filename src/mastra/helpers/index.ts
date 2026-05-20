@@ -1,7 +1,7 @@
 import type { Mastra } from "@mastra/core/mastra";
-import { saveAgentArtifact } from "../../db/repositories/artifact-repository";
-import { AgentName, DeliveryArtifact } from "../shared/schema/delivery-schema";
-import { artifactPath, runDir } from "../shared/workspace-paths";
+import { saveAgentArtifact } from "../../db/repositories/artifact-repository.ts";
+import { AgentName, DeliveryArtifact } from "../shared/schema/delivery-schema.ts";
+import { artifactPath, runDir } from "../shared/workspace-paths.ts";
 
 function truncateText(text: string | undefined | null, maxChars: number): string {
   if (!text) {
@@ -46,20 +46,12 @@ export function buildArtifact(params: {
   agentName: AgentName;
   artifactType: string;
   markdown: string;
-  summary?: string;
-  assumptions?: string[];
-  risks?: string[];
-  openQuestions?: string[];
+  summary: string;
+  assumptions: string[];
+  risks: string[];
+  openQuestions: string[];
 }): DeliveryArtifact {
-  return {
-    agentName: params.agentName,
-    artifactType: params.artifactType,
-    markdown: params.markdown,
-    summary: params.summary ?? params.markdown.slice(0, 500),
-    assumptions: params.assumptions ?? [],
-    risks: params.risks ?? [],
-    openQuestions: params.openQuestions ?? [],
-  };
+  return { ...params };
 }
 
 export function buildAgentPrompt(params: {
@@ -67,9 +59,11 @@ export function buildAgentPrompt(params: {
   projectId: string;
   rawInput: string;
   artifacts: DeliveryArtifact[];
+  retrievedContext?: string;
   specificInstruction: string;
 }): string {
   const previousArtifacts = renderCompactArtifacts(params.artifacts);
+  const retrievedContext = params.retrievedContext ?? "No retrieved project context.";
 
   return `
 You are running inside the Delivery Copilot workflow.
@@ -89,6 +83,8 @@ ${truncateText(params.rawInput, RAW_INPUT_CONTEXT_LIMIT)}
 
 Previous Agent Outputs:
 ${previousArtifacts}
+
+${retrievedContext}
 
 Your Role:
 ${params.role}

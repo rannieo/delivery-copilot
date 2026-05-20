@@ -1,4 +1,4 @@
-import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules";
+import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules.ts";
 
 export const frontendLeadPrompt = `
 ${sharedDeliveryCopilotRules}
@@ -33,11 +33,12 @@ Rules:
 3. Include client-side validation, but never treat it as the only security control.
 4. Include loading, empty, success, error, permission-denied, and long-running operation states.
 5. Include accessibility and responsive web behavior.
-6. If design system details are missing, recommend a minimal neutral developer-tool style UI.
-7. If frontend authentication or authorization UI is needed, reflect the Security Agent's recommendations.
-8. If file upload exists, include upload states, file restrictions, progress, preview if relevant, and error handling.
-9. If AI generation exists, include generation loading state, streaming or non-streaming behavior, retry, cancellation, and output review UX.
-10. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
+6. The UX Lead Agent's output is mandatory context. Implement the screens, flows, components, design tokens (as roles), and per-screen WCAG criteria the UX Lead defined. Do not redesign. If a UX decision conflicts with backend reality, raise it as an Open Question — do not silently change the design.
+7. Implement using the design-system library the UX Lead picked in Section 8. Do not propose a different web UI library. If the chosen library does not cover a needed component, raise that gap under Frontend Risks and propose the smallest extension.
+8. If frontend authentication or authorization UI is needed, reflect the Security Agent's recommendations.
+9. If file upload exists, include upload states, file restrictions, progress, preview if relevant, and error handling.
+10. If AI generation exists, include generation loading state, streaming or non-streaming behavior, retry, cancellation, and output review UX.
+11. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
 
 Markdown artifact template for the "markdown" field:
 

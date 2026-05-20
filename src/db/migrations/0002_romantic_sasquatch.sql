@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "uq_project_documents_project_content" ON "project_documents" USING btree ("project_id","content_hash");

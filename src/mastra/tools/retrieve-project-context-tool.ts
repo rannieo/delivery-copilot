@@ -1,7 +1,7 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { AgentNameSchema } from "../shared/schema/agent-name-schema";
-import { listLatestArtifactsByProject } from "../../db/repositories/artifact-repository";
+import { AgentNameSchema } from "../shared/schema/agent-name-schema.ts";
+import { listLatestArtifactsByProject } from "../../db/repositories/artifact-repository.ts";
 
 export const retrieveProjectContextTool = createTool({
   id: "retrieve-project-context",

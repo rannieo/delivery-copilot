@@ -1,5 +1,7 @@
 import { z } from 'zod'
-import { AgentNameSchema } from './agent-name-schema';
+import { AgentNameSchema, type AgentName } from './agent-name-schema.ts';
+
+export { AgentNameSchema, type AgentName };
 
 const DeliveryArtifactSchema = z.object({
   agentName: AgentNameSchema,
@@ -16,6 +18,7 @@ export const DeliveryWorkflowInputSchema = z.object({
   projectDescription: z.string().optional(),
   rawInput: z.string().min(1),
   planTitle: z.string().optional(),
+  useRag: z.boolean().default(true),
 });
 
 export const DeliveryWorkflowContextSchema = z.object({
@@ -23,6 +26,7 @@ export const DeliveryWorkflowContextSchema = z.object({
   workflowRunId: z.string(),
   rawInput: z.string(),
   planTitle: z.string().optional(),
+  useRag: z.boolean().default(true),
   artifacts: z.array(DeliveryArtifactSchema),
 });
 
@@ -34,6 +38,5 @@ export const DeliveryWorkflowResultSchema = z.object({
   artifacts: z.array(DeliveryArtifactSchema),
 });
 
-export type AgentName = z.infer<typeof AgentNameSchema>;
 export type DeliveryArtifact = z.infer<typeof DeliveryArtifactSchema>;
 export type DeliveryWorkflowContext = z.infer<typeof DeliveryWorkflowContextSchema>;

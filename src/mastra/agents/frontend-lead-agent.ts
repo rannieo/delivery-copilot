@@ -1,7 +1,7 @@
 import { Agent } from "@mastra/core/agent";
-import { frontendLeadPrompt } from "../shared/prompts/frontend-lead-prompt";
-import { defaultAgentModelConfig } from "../config";
-import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool";
+import { frontendLeadPrompt } from "../shared/prompts/frontend-lead-prompt.ts";
+import { defaultAgentModelConfig } from "../config/index.ts";
+import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool.ts";
 
 export const frontendLeadAgent = new Agent({
   id: "frontend-lead-agent",

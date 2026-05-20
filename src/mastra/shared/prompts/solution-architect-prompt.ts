@@ -1,4 +1,4 @@
-import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules";
+import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules.ts";
 
 export const solutionArchitectPrompt = `
 ${sharedDeliveryCopilotRules}

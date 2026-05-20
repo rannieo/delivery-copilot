@@ -1,8 +1,8 @@
 import { PostgresStore } from "@mastra/pg";
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { mastraStorage } from "../mastra/storage";
-import * as schema from "./schema";
+import { mastraStorage } from "../mastra/storage.ts";
+import * as schema from "./schema.ts";
 
 export type Db = NodePgDatabase<typeof schema>;
 

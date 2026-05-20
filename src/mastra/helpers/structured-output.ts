@@ -116,11 +116,23 @@ function stripMarkdownMarkers(line: string): string {
 function fallbackSummary(markdown: string): string {
   const lines = cleanText(markdown)
     .split("\n")
-    .map(stripMarkdownMarkers)
-    .filter((line) => line.length > 0);
+    .map((line) => ({
+      raw: line.trim(),
+      text: stripMarkdownMarkers(line),
+    }))
+    .filter((line) => line.text.length > 0);
 
-  const firstBodyLine = lines.find((line) => !/^product requirements analysis$/i.test(line))
-    ?? lines[0]
+  const bodyLines = lines
+    .filter((line) => !line.raw.match(/^#{1,6}\s+/))
+    .map((line) => line.text);
+  const allLines = lines.map((line) => line.text);
+
+  // Title-like lines tend to be short. Prefer the first substantive body line.
+  const firstBodyLine =
+    bodyLines.find((line) => line.length > 20)
+    ?? bodyLines[0]
+    ?? allLines[1]
+    ?? allLines[0]
     ?? "Agent returned markdown without a structured summary.";
 
   return firstBodyLine.slice(0, 800);

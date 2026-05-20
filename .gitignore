@@ -11,3 +11,6 @@ dist
 .netlify
 .vercel
 workspace/
+src/mastra/public/mastra.db*
+src/mastra/public/mastra.duckdb*
+src/mastra/public/workspace/

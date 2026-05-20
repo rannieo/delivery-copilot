@@ -1,10 +1,12 @@
 import { createStep } from "@mastra/core/workflows";
-import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import type { AgentName } from "../../shared/schema/delivery-schema";
-import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
-import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
-import { deliveryWorkflowModelSettings } from "../../config";
-import { coerceAgentArtifactPayload } from "../../helpers/structured-output";
+import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema.ts";
+import type { AgentName } from "../../shared/schema/delivery-schema.ts";
+import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-output-schema.ts";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers/index.ts";
+import { deliveryWorkflowModelSettings } from "../../config/index.ts";
+import { coerceAgentArtifactPayload } from "../../helpers/structured-output.ts";
+import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service.ts";
+import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval.ts";
 
 const STRUCTURED_OUTPUT_ADDENDUM = `
 
@@ -33,6 +35,17 @@ export function makeDeliveryStep(opts: {
 
     execute: async ({ inputData, mastra }) => {
       const agent = mastra.getAgentById(opts.agentId);
+      const retrievedContext =
+        inputData.useRag === false
+          ? "No retrieved project context."
+          : await retrieveProjectContextForPrompt({
+              projectId: inputData.projectId,
+              query: buildAgentRetrievalQuery({
+                role: opts.role,
+                rawInput: inputData.rawInput,
+                artifactSummaries: inputData.artifacts.map((artifact) => artifact.summary),
+              }),
+            });
 
       const response = await agent.generate(
         buildAgentPrompt({
@@ -40,6 +53,7 @@ export function makeDeliveryStep(opts: {
           projectId: inputData.projectId,
           rawInput: inputData.rawInput,
           artifacts: inputData.artifacts,
+          retrievedContext,
           specificInstruction: opts.instruction + STRUCTURED_OUTPUT_ADDENDUM,
         }),
         {

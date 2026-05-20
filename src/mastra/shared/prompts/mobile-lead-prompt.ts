@@ -1,4 +1,4 @@
-import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules";
+import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules.ts";
 
 export const mobileLeadPrompt = `
 ${sharedDeliveryCopilotRules}
@@ -43,8 +43,10 @@ Rules:
 4. Align mobile API usage with the Backend Lead Agent output.
 5. Align mobile auth, permissions, and data protection with the Security Agent output.
 6. Use the Frontend Lead Agent output to avoid duplicating responsive web scope.
-7. If native mobile is needed, include mobile release and store deployment considerations.
-8. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
+7. The UX Lead Agent's output is mandatory context. Implement the responsive breakpoints, touch-target minimums, per-screen WCAG criteria, content/microcopy patterns, and design-system direction the UX Lead defined. If a screen requires platform-specific divergence (iOS vs Android conventions), call it out under "Platform Notes" — do not silently change the design.
+8. Implement using the design-system library the UX Lead picked in Section 8 when it applies to the chosen mobile approach. If the UX Lead picked a web-only library and native mobile is required, propose a mobile-compatible mapping that preserves the same design tokens, such as "shadcn/ui for web → React Native Paper for native app with shared token roles." Do not invent unrelated styling.
+9. If native mobile is needed, include mobile release and store deployment considerations.
+10. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
 
 Markdown artifact template for the "markdown" field:
 

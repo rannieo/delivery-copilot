@@ -1,4 +1,4 @@
-import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules";
+import { sharedDeliveryCopilotRules } from "../rules/shared-delivery-copilot-rules.ts";
 
 export const backendLeadPrompt = `
 ${sharedDeliveryCopilotRules}
@@ -27,6 +27,7 @@ When designing APIs:
 3. Include request/response summaries but avoid full code unless requested.
 4. Include validation and authorization notes.
 5. Include failure cases and idempotency where relevant.
+6. Read the UX Lead's screen inventory. Each screen's "Data required" list implies an endpoint or query shape. Prefer screen-driven endpoints (e.g., GET /queues/:id/dashboard-view that returns exactly what the dashboard screen needs) over generic CRUD when the screen demands it. If the UX Lead's data needs cannot be served by the proposed architecture, raise it under Backend Risks rather than silently widening the API.
 
 When designing the database:
 1. Identify core entities.
