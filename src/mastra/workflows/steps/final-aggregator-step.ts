@@ -1,8 +1,9 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema, DeliveryWorkflowResultSchema } from "../../shared/schema/delivery-schema";
 import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
-import { saveFinalPlan } from "../../../server/repositories/final-plan-repository";
-import { completeWorkflowRun, failWorkflowRun } from "../../../server/repositories/workflow-run-repository";
+import { finalPlanPath, runDir } from "../../shared/workspace-paths";
+import { saveFinalPlan } from "../../../db/repositories/final-plan-repository";
+import { completeWorkflowRun } from "../../../db/repositories/workflow-run-repository";
 
 export const finalAggregatorStep = createStep({
   id: "final-aggregator-step",
@@ -12,17 +13,15 @@ export const finalAggregatorStep = createStep({
 
   execute: async ({ inputData, mastra }) => {
     const agent = mastra.getAgentById("final-plan-aggregator-agent");
-
     const planTitle = inputData.planTitle ?? "Technical Delivery Plan";
 
-    try {
-      const response = await agent.generate(
-        buildAgentPrompt({
-          role: "Final Plan Aggregator Agent",
-          projectId: inputData.projectId,
-          rawInput: inputData.rawInput,
-          artifacts: inputData.artifacts,
-          specificInstruction: `
+    const response = await agent.generate(
+      buildAgentPrompt({
+        role: "Final Plan Aggregator Agent",
+        projectId: inputData.projectId,
+        rawInput: inputData.rawInput,
+        artifacts: inputData.artifacts,
+        specificInstruction: `
 Create one polished final Markdown document titled "${planTitle}".
 
 The final document must include:
@@ -48,47 +47,46 @@ The final document must include:
 Do not add unsupported requirements.
 Preserve important risks, assumptions, and open questions.
 `,
-        }),
-      );
+      }),
+    );
 
-      const artifact = buildArtifact({
-        agentName: "final_aggregator",
-        artifactType: "final_technical_delivery_plan",
-        markdown: response.text,
-      });
+    const artifact = buildArtifact({
+      agentName: "final_aggregator",
+      artifactType: "final_technical_delivery_plan",
+      markdown: response.text,
+    });
 
-      await persistArtifact({
-        projectId: inputData.projectId,
-        workflowRunId: inputData.workflowRunId,
-        artifact,
-      });
+    await persistArtifact({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
+      mastra,
+    });
 
-      await saveFinalPlan({
-        projectId: inputData.projectId,
-        workflowRunId: inputData.workflowRunId,
-        title: planTitle,
-        markdown: response.text,
-      });
-
-      await completeWorkflowRun({
-        workflowRunId: inputData.workflowRunId,
-      });
-
-      return {
-        projectId: inputData.projectId,
-        workflowRunId: inputData.workflowRunId,
-        planTitle,
-        finalMarkdown: response.text,
-        artifacts: [...inputData.artifacts, artifact],
-      };
-    } catch (error) {
-      await failWorkflowRun({
-        workflowRunId: inputData.workflowRunId,
-        errorMessage:
-          error instanceof Error ? error.message : "Unknown workflow error",
-      });
-
-      throw error;
+    const workspace = mastra.getWorkspace();
+    if (!workspace?.filesystem) {
+      throw new Error("Workspace filesystem not configured");
     }
+
+    const planPath = finalPlanPath(inputData.workflowRunId);
+    await workspace.filesystem.mkdir(runDir(inputData.workflowRunId), { recursive: true });
+    await workspace.filesystem.writeFile(planPath, response.text);
+
+    await saveFinalPlan({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      title: planTitle,
+      markdown: planPath,
+    });
+
+    await completeWorkflowRun({ workflowRunId: inputData.workflowRunId });
+
+    return {
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      planTitle,
+      finalMarkdown: response.text,
+      artifacts: [...inputData.artifacts, artifact],
+    };
   },
 });

@@ -1,6 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { deliveryManagerPrompt } from '../shared/prompts/delivery-manager-prompt';
+import { defaultAgentModelConfig } from '../config';
 import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
 import { createTicketDraftsTool } from '../tools/create-ticket-drafts-tool';
 import { saveAgentOutputTool } from '../tools/save-agent-output-tool';
@@ -19,7 +20,7 @@ Tool usage rules:
 - Use saveAgentOutputTool after producing the final Delivery Roadmap.
 - Keep tickets small, executable, and dependency-aware.
 `,
-  model: 'ollama-cloud/qwen3.5:397b',
+  model: defaultAgentModelConfig,
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

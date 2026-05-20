@@ -1,6 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { backendLeadPrompt } from '../shared/prompts/backend-lead-prompt';
+import { defaultAgentModelConfig } from '../config';
 import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
 import { saveAgentOutputTool } from '../tools/save-agent-output-tool';
 
@@ -19,7 +20,7 @@ Tool usage rules:
 - If a security recommendation is not implemented, list it under "Deferred Security Controls" with a reason.
 - Do not create delivery tickets directly.
 `,
-  model: 'ollama-cloud/qwen3.5:397b',
+  model: defaultAgentModelConfig,
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

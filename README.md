@@ -25,8 +25,7 @@ rawInput
 | `src/mastra/agents/`            | Seven specialist agents that make up the pipeline                       |
 | `src/mastra/workflows/`         | `deliveryCopilotWorkflow` and its per-agent step wrappers in `steps/`   |
 | `src/mastra/tools/`             | Reusable tools (parse input, save artifacts, generate/export Markdown, ticket drafts, security checklist, project context) |
-| `src/mastra/scorers/`           | Scorers for evaluating agent output quality                             |
-| `src/mastra/shared/`            | Cross-cutting code — Zod schemas, prompts, shared rules, project store  |
+| `src/mastra/shared/`            | Cross-cutting code — Zod schemas, prompts, shared rules, workspace paths |
 
 ## Requirements
 

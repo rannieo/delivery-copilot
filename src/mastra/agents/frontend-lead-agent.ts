@@ -1,5 +1,6 @@
 import { Agent } from "@mastra/core/agent";
 import { frontendLeadPrompt } from "../shared/prompts/frontend-lead-prompt";
+import { defaultAgentModelConfig } from "../config";
 import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool";
 import { saveAgentOutputTool } from "../tools/save-agent-output-tool";
 
@@ -18,7 +19,7 @@ Tool usage rules:
 - Security Agent output is mandatory context because frontend must reflect auth, permissions, masking, and safe error states.
 - Do not create delivery tickets directly.
 `,
-    model: 'ollama-cloud/qwen3.5:397b',
+    model: defaultAgentModelConfig,
     tools: {
         retrieveProjectContextTool,
         saveAgentOutputTool,

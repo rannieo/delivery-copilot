@@ -1,5 +1,6 @@
 import { Agent } from "@mastra/core/agent";
 import { mobileLeadPrompt } from "../shared/prompts/mobile-lead-prompt";
+import { defaultAgentModelConfig } from "../config";
 import { retrieveProjectContextTool } from "../tools/retrieve-project-context-tool";
 import { saveAgentOutputTool } from "../tools/save-agent-output-tool";
 
@@ -19,7 +20,7 @@ Tool usage rules:
 - Frontend Lead output is mandatory context so mobile-specific scope does not duplicate responsive web scope.
 - Do not create delivery tickets directly.
 `,
-  model: 'ollama-cloud/qwen3.5:397b',
+  model: defaultAgentModelConfig,
   tools: {
     retrieveProjectContextTool,
     saveAgentOutputTool,

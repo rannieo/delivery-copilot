@@ -1,6 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { qaEngineerPrompt } from '../shared/prompts/qa-engineer-prompt';
+import { defaultAgentModelConfig } from '../config';
 import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
 import { securityChecklistTool } from '../tools/security-checklist-tool';
 import { saveAgentOutputTool } from '../tools/save-agent-output-tool';
@@ -19,7 +20,7 @@ Tool usage rules:
 - Use saveAgentOutputTool after producing the final QA Test Plan.
 - Do not create delivery tickets directly.
 `,
-  model: 'ollama-cloud/qwen3.5:397b',
+  model: defaultAgentModelConfig,
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

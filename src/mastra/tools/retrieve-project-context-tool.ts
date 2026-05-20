@@ -1,7 +1,7 @@
 import { createTool } from "@mastra/core/tools";
-import { z } from 'zod'
+import { z } from "zod";
 import { AgentNameSchema } from "../shared/schema/agent-name-schema";
-import { projectStore } from "../shared/store/project-store";
+import { listLatestArtifactsByProject } from "../../db/repositories/artifact-repository";
 
 export const retrieveProjectContextTool = createTool({
   id: "retrieve-project-context",
@@ -32,31 +32,45 @@ export const retrieveProjectContextTool = createTool({
     ),
   }),
 
-  execute: async (inputData) => {
-    const project = projectStore.get(inputData.projectId);
+  execute: async (inputData, context) => {
+    const workspace = context?.mastra?.getWorkspace();
+    if (!workspace?.filesystem) {
+      throw new Error("Workspace filesystem not configured");
+    }
 
-    const artifacts = project?.artifacts ?? [];
+    const rows = await listLatestArtifactsByProject({
+      projectId: inputData.projectId,
+    });
 
-    const filteredArtifacts = inputData.includeAgents
-      ? artifacts.filter((artifact: any) =>
-          inputData.includeAgents?.includes(artifact.agentName),
+    const filtered = inputData.includeAgents
+      ? rows.filter((row) =>
+          inputData.includeAgents!.includes(
+            row.agentName as (typeof inputData.includeAgents)[number],
+          ),
         )
-      : artifacts;
+      : rows;
+
+    const artifacts = await Promise.all(
+      filtered.map(async (row) => {
+        const markdown = await workspace.filesystem!.readFile(row.markdown);
+        return {
+          artifactId: row.id,
+          agentName: row.agentName as z.infer<typeof AgentNameSchema>,
+          artifactType: row.artifactType,
+          summary: row.summary,
+          markdown: typeof markdown === "string" ? markdown : markdown.toString("utf-8"),
+          assumptions: row.assumptions ?? [],
+          risks: row.risks ?? [],
+          openQuestions: row.openQuestions ?? [],
+          createdAt: row.createdAt.toISOString(),
+        };
+      }),
+    );
 
     return {
       projectId: inputData.projectId,
       currentAgent: inputData.currentAgent,
-      artifacts: filteredArtifacts.map((artifact: any) => ({
-        artifactId: artifact.id,
-        agentName: artifact.agentName,
-        artifactType: artifact.artifactType,
-        summary: artifact.summary,
-        markdown: artifact.markdown,
-        assumptions: artifact.assumptions ?? [],
-        risks: artifact.risks ?? [],
-        openQuestions: artifact.openQuestions ?? [],
-        createdAt: artifact.createdAt,
-      })),
+      artifacts,
     };
   },
 });
