@@ -3,6 +3,8 @@ import { DeliveryWorkflowContextSchema, DeliveryWorkflowResultSchema } from "../
 import { FinalPlanOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
 import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 import { finalPlanPath, runDir } from "../../shared/workspace-paths";
+import { deliveryWorkflowModelSettings } from "../../config";
+import { coerceFinalPlanPayload } from "../../helpers/structured-output";
 import { saveFinalPlan } from "../../../db/repositories/final-plan-repository";
 import { completeWorkflowRun } from "../../../db/repositories/workflow-run-repository";
 
@@ -52,19 +54,20 @@ Return a structured response matching the requested schema with a single "markdo
 `,
       }),
       {
+        modelSettings: deliveryWorkflowModelSettings,
+        toolChoice: "none",
         structuredOutput: {
           schema: FinalPlanOutputSchema,
-          useAgent: true,
+          jsonPromptInjection: true,
+          errorStrategy: "warn",
         },
       },
     );
 
-    const payload = response.object;
-    if (!payload) {
-      throw new Error(
-        `Final aggregator returned no structured object. Raw text: ${response.text?.slice(0, 200)}`,
-      );
-    }
+    const payload = coerceFinalPlanPayload({
+      object: response.object,
+      text: response.text,
+    });
 
     const finalMarkdown = payload.markdown;
 

@@ -3,6 +3,8 @@ import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-sche
 import type { AgentName } from "../../shared/schema/delivery-schema";
 import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
 import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
+import { deliveryWorkflowModelSettings } from "../../config";
+import { coerceAgentArtifactPayload } from "../../helpers/structured-output";
 
 const STRUCTURED_OUTPUT_ADDENDUM = `
 
@@ -41,19 +43,21 @@ export function makeDeliveryStep(opts: {
           specificInstruction: opts.instruction + STRUCTURED_OUTPUT_ADDENDUM,
         }),
         {
+          modelSettings: deliveryWorkflowModelSettings,
+          toolChoice: "none",
           structuredOutput: {
             schema: AgentArtifactOutputSchema,
-            useAgent: true,
+            jsonPromptInjection: true,
+            errorStrategy: "warn",
           },
         },
       );
 
-      const payload = response.object;
-      if (!payload) {
-        throw new Error(
-          `Agent ${opts.agentId} returned no structured object. Raw text: ${response.text?.slice(0, 200)}`,
-        );
-      }
+      const payload = coerceAgentArtifactPayload({
+        agentId: opts.agentId,
+        object: response.object,
+        text: response.text,
+      });
 
       const artifact = buildArtifact({
         agentName: opts.agentName,

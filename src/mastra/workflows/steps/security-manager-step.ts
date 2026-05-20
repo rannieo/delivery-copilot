@@ -1,7 +1,7 @@
 import { makeDeliveryStep } from "./_make-delivery-step";
 
 export const securityStep = makeDeliveryStep({
-  id: "security-step",
+  id: "security-manager-step",
   description: "Reviews architecture and requirements for security risks.",
   agentId: "security-manager-agent",
   agentName: "security_manager",
