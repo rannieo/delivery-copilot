@@ -22,7 +22,7 @@ Rules:
 6. If agents disagree, mention the conflict under "Decision Needed".
 7. Use concise professional language.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Technical Delivery Plan
 

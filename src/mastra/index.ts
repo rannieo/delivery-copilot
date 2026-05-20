@@ -1,6 +1,5 @@
 import { Mastra } from '@mastra/core/mastra';
 import { PinoLogger } from '@mastra/loggers';
-import { LibSQLStore } from '@mastra/libsql';
 import { DuckDBStore } from "@mastra/duckdb";
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { Observability, MastraStorageExporter, MastraPlatformExporter, SensitiveDataFilter } from '@mastra/observability';
@@ -14,10 +13,12 @@ import { finalPlanAggregatorAgent } from './agents/final-plan-aggregator-agent';
 import { deliveryCopilotWorkflow } from './workflows/delivery-copilot-workflow';
 import { frontendLeadAgent } from './agents/frontend-lead-agent';
 import { mobileLeadAgent } from './agents/mobile-lead-agent';
+import { mastraStorage } from './storage';
+import { createMastraWorkspace } from './workspace';
 
 export const mastra = new Mastra({
   workflows: {
-    deliveryCopilotWorkflow 
+    deliveryCopilotWorkflow
   },
   agents: {
     backendLeadAgent,
@@ -30,12 +31,10 @@ export const mastra = new Mastra({
     frontendLeadAgent,
     mobileLeadAgent,
   },
+  workspace: createMastraWorkspace(),
   storage: new MastraCompositeStore({
     id: 'composite-storage',
-    default: new LibSQLStore({
-      id: "mastra-storage",
-      url: "file:./mastra.db",
-    }),
+    default: mastraStorage,
     domains: {
       observability: await new DuckDBStore().getStore('observability'),
     }
@@ -49,11 +48,11 @@ export const mastra = new Mastra({
       default: {
         serviceName: 'mastra',
         exporters: [
-          new MastraStorageExporter(), // Persists observability events to Mastra Storage
-          new MastraPlatformExporter(), // Sends observability events to Mastra Platform (if MASTRA_PLATFORM_ACCESS_TOKEN is set)
+          new MastraStorageExporter(),
+          new MastraPlatformExporter(),
         ],
         spanOutputProcessors: [
-          new SensitiveDataFilter(), // Redacts sensitive data like passwords, tokens, keys
+          new SensitiveDataFilter(),
         ],
       },
     },

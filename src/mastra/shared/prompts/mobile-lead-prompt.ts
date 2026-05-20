@@ -46,7 +46,7 @@ Rules:
 7. If native mobile is needed, include mobile release and store deployment considerations.
 8. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Mobile Implementation Plan
 
@@ -195,7 +195,4 @@ For each risk:
 
 ## 15. Implementation Sequence
 List the recommended mobile build order.
-
-## 16. Handoff Summary for QA Agent
-Summarize what QA must validate for mobile.
 `;

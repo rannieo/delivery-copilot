@@ -30,7 +30,7 @@ When creating tickets:
 5. Prioritize MVP delivery first.
 6. Avoid fake precision. Use T-shirt sizing or rough estimates if exact estimates are not possible.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Delivery Roadmap
 

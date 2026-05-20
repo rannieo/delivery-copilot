@@ -1,7 +1,10 @@
 import { createStep } from "@mastra/core/workflows";
-import { DeliveryWorkflowContextSchema, DeliveryWorkflowInputSchema } from "../../shared/schema/delivery-schema";
-import { createWorkflowRun } from "../../../server/repositories/workflow-run-repository";
-import { createProject } from "../../../server/repositories/project-repository";
+import {
+  DeliveryWorkflowContextSchema,
+  DeliveryWorkflowInputSchema,
+} from "../../shared/schema/delivery-schema";
+import { createWorkflowRun } from "../../../db/repositories/workflow-run-repository";
+import { createProject } from "../../../db/repositories/project-repository";
 
 export const initializeWorkflowRunStep = createStep({
   id: "initialize-workflow-run-step",
@@ -9,7 +12,7 @@ export const initializeWorkflowRunStep = createStep({
   inputSchema: DeliveryWorkflowInputSchema,
   outputSchema: DeliveryWorkflowContextSchema,
 
-  execute: async ({ inputData }) => {
+  execute: async ({ inputData, runId }) => {
     const project = await createProject({
       name: inputData.projectName,
       description: inputData.projectDescription,
@@ -17,6 +20,7 @@ export const initializeWorkflowRunStep = createStep({
 
     const run = await createWorkflowRun({
       projectId: project.id,
+      mastraRunId: runId,
       inputText: inputData.rawInput,
     });
 

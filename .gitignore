@@ -10,3 +10,4 @@ dist
 *.duckdb.wal
 .netlify
 .vercel
+workspace/

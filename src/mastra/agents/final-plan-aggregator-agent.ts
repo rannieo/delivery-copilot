@@ -1,10 +1,10 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { finalPlanAggregatorPrompt } from '../shared/prompts/final-plan-aggregator-prompt';
+import { defaultAgentModelConfig } from '../config';
 import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
 import { generateMarkdownPlanTool } from '../tools/generate-markdown-plan-tool';
 import { exportMarkdownTool } from '../tools/export-markdown-tool';
-import { saveAgentOutputTool } from '../tools/save-agent-output-tool';
 
 export const finalPlanAggregatorAgent = new Agent({
   id: 'final-plan-aggregator-agent',
@@ -18,15 +18,13 @@ Tool usage rules:
 - Use retrieveProjectContextTool to read outputs from all agents.
 - Use generateMarkdownPlanTool to create the final Markdown document.
 - Use exportMarkdownTool only after the final Markdown plan is generated.
-- Use saveAgentOutputTool after producing the final aggregated plan.
 - Do not introduce new requirements that are not supported by previous agent outputs.
 `,
-  model: 'ollama-cloud/qwen3.5:397b',
+  model: defaultAgentModelConfig,
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,
     generateMarkdownPlanTool,
     exportMarkdownTool,
-    saveAgentOutputTool,
   },
 });

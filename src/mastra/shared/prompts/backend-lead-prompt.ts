@@ -36,7 +36,7 @@ When designing the database:
 5. Identify audit/history requirements.
 6. Avoid unnecessary normalization for MVP unless data integrity requires it.
 
-Output format:
+Markdown artifact template for the "markdown" field:
 
 # Backend Implementation Plan
 
@@ -109,7 +109,4 @@ For each risk:
 - Risk:
 - Impact:
 - Mitigation:
-
-## 12. Handoff Summary for QA Agent
-Summarize what QA needs to validate.
 `;
