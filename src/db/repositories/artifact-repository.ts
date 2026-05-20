@@ -1,7 +1,7 @@
 import { asc, desc, eq } from "drizzle-orm";
-import { getDb } from "../client";
-import { agentArtifacts } from "../schema";
-import type { DeliveryArtifact } from "../../mastra/shared/schema/delivery-schema";
+import { getDb } from "../client.ts";
+import { agentArtifacts } from "../schema.ts";
+import type { DeliveryArtifact } from "../../mastra/shared/schema/delivery-schema.ts";
 
 export type AgentArtifact = typeof agentArtifacts.$inferSelect;
 

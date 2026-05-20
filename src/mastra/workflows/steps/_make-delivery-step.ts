@@ -1,12 +1,12 @@
 import { createStep } from "@mastra/core/workflows";
-import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import type { AgentName } from "../../shared/schema/delivery-schema";
-import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
-import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
-import { deliveryWorkflowModelSettings } from "../../config";
-import { coerceAgentArtifactPayload } from "../../helpers/structured-output";
-import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service";
-import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval";
+import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema.ts";
+import type { AgentName } from "../../shared/schema/delivery-schema.ts";
+import { AgentArtifactOutputSchema } from "../../shared/schema/agent-artifact-output-schema.ts";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers/index.ts";
+import { deliveryWorkflowModelSettings } from "../../config/index.ts";
+import { coerceAgentArtifactPayload } from "../../helpers/structured-output.ts";
+import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service.ts";
+import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval.ts";
 
 const STRUCTURED_OUTPUT_ADDENDUM = `
 

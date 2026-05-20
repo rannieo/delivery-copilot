@@ -1,9 +1,8 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { qaEngineerPrompt } from '../shared/prompts/qa-engineer-prompt';
-import { defaultAgentModelConfig } from '../config';
-import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
-import { securityChecklistTool } from '../tools/security-checklist-tool';
+import { qaEngineerPrompt } from '../shared/prompts/qa-engineer-prompt.ts';
+import { defaultAgentModelConfig } from '../config/index.ts';
+import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool.ts';
 
 export const qaEngineerAgent = new Agent({
   id: 'qa-engineer-agent',
@@ -15,13 +14,11 @@ ${qaEngineerPrompt}
 
 Tool usage rules:
 - Use retrieveProjectContextTool to read Product Analyst, Security Agent, Backend Lead, and Architecture outputs.
-- Use securityChecklistTool when security requirements need to be converted into test coverage.
 - Do not create delivery tickets directly.
 `,
   model: defaultAgentModelConfig,
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,
-    securityChecklistTool,
   },
 });

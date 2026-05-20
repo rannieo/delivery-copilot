@@ -2,9 +2,9 @@ import { createStep } from "@mastra/core/workflows";
 import {
   DeliveryWorkflowContextSchema,
   DeliveryWorkflowInputSchema,
-} from "../../shared/schema/delivery-schema";
-import { createWorkflowRun } from "../../../db/repositories/workflow-run-repository";
-import { createProject } from "../../../db/repositories/project-repository";
+} from "../../shared/schema/delivery-schema.ts";
+import { createWorkflowRun } from "../../../db/repositories/workflow-run-repository.ts";
+import { createProject } from "../../../db/repositories/project-repository.ts";
 
 export const initializeWorkflowRunStep = createStep({
   id: "initialize-workflow-run-step",

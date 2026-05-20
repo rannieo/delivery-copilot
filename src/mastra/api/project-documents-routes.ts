@@ -1,11 +1,16 @@
+// SECURITY: all routes below use requiresAuth: false. Fine for local dev.
+// Before exposing this surface to any non-trusted origin, wire real auth
+// (e.g., a header check against a server-only secret, or integrate with
+// whatever frontend session you adopt).
+
 import { registerApiRoute } from "@mastra/core/server";
 import { z } from "zod";
-import { getProjectById } from "../../db/repositories/project-repository";
+import { getProjectById } from "../../db/repositories/project-repository.ts";
 import {
   getProjectDocumentById,
   listProjectDocuments,
 } from "../../db/repositories/project-document-repository.ts";
-import { ingestProjectDocument } from "../rag/document-service.ts";
+import { deindexProjectDocument, ingestProjectDocument } from "../rag/document-service.ts";
 import { ProjectDocumentSourceTypeSchema, ragConfig } from "../rag/config.ts";
 import { renderRetrievedContext, retrieveProjectContext } from "../rag/retrieval-service.ts";
 
@@ -75,6 +80,28 @@ export const projectDocumentApiRoutes = [
 
       const storedDocument = await getProjectDocumentById({ documentId: document.id });
       return c.json({ document: storedDocument ?? document }, 201);
+    },
+  }),
+
+  registerApiRoute("/projects/:projectId/documents/:documentId", {
+    method: "DELETE",
+    requiresAuth: false,
+    handler: async (c) => {
+      const projectId = c.req.param("projectId");
+      const documentId = c.req.param("documentId");
+
+      const project = await getProjectById(projectId);
+      if (!project) {
+        return c.json({ error: "Project not found" }, 404);
+      }
+
+      const document = await getProjectDocumentById({ documentId });
+      if (!document || document.projectId !== projectId) {
+        return c.json({ error: "Document not found" }, 404);
+      }
+
+      await deindexProjectDocument({ documentId });
+      return c.body(null, 204);
     },
   }),
 

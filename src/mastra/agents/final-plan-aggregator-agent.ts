@@ -1,8 +1,8 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { finalPlanAggregatorPrompt } from '../shared/prompts/final-plan-aggregator-prompt';
-import { defaultAgentModelConfig } from '../config';
-import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
+import { finalPlanAggregatorPrompt } from '../shared/prompts/final-plan-aggregator-prompt.ts';
+import { defaultAgentModelConfig } from '../config/index.ts';
+import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool.ts';
 
 export const finalPlanAggregatorAgent = new Agent({
   id: 'final-plan-aggregator-agent',

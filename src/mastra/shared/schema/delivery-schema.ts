@@ -1,5 +1,7 @@
 import { z } from 'zod'
-import { AgentNameSchema } from './agent-name-schema';
+import { AgentNameSchema, type AgentName } from './agent-name-schema.ts';
+
+export { AgentNameSchema, type AgentName };
 
 const DeliveryArtifactSchema = z.object({
   agentName: AgentNameSchema,
@@ -36,6 +38,5 @@ export const DeliveryWorkflowResultSchema = z.object({
   artifacts: z.array(DeliveryArtifactSchema),
 });
 
-export type AgentName = z.infer<typeof AgentNameSchema>;
 export type DeliveryArtifact = z.infer<typeof DeliveryArtifactSchema>;
 export type DeliveryWorkflowContext = z.infer<typeof DeliveryWorkflowContextSchema>;

@@ -119,7 +119,10 @@ function fallbackSummary(markdown: string): string {
     .map(stripMarkdownMarkers)
     .filter((line) => line.length > 0);
 
-  const firstBodyLine = lines.find((line) => !/^product requirements analysis$/i.test(line))
+  // Title-like lines tend to be short. Prefer the first substantive body line.
+  const firstBodyLine =
+    lines.find((line) => line.length > 20)
+    ?? lines[1]
     ?? lines[0]
     ?? "Agent returned markdown without a structured summary.";
 

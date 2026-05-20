@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
-import { getDb } from "../client";
-import { workflowRuns } from "../schema";
+import { getDb } from "../client.ts";
+import { workflowRuns } from "../schema.ts";
 
 export type WorkflowRun = typeof workflowRuns.$inferSelect;
 
@@ -24,11 +24,13 @@ export async function createWorkflowRun(input: {
   return row;
 }
 
-export async function completeWorkflowRun(input: { workflowRunId: string }): Promise<void> {
+export async function completeWorkflowRunByMastraRunId(input: {
+  mastraRunId: string;
+}): Promise<void> {
   await getDb()
     .update(workflowRuns)
     .set({ status: "completed", completedAt: sql`now()` })
-    .where(eq(workflowRuns.id, input.workflowRunId));
+    .where(eq(workflowRuns.mastraRunId, input.mastraRunId));
 }
 
 export async function failWorkflowRunByMastraRunId(input: {

@@ -15,6 +15,13 @@
       "when": 1779288444719,
       "tag": "0001_tearful_umar",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779292219743,
+      "tag": "0002_romantic_sasquatch",
+      "breakpoints": true
     }
   ]
 }

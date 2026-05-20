@@ -11,3 +11,5 @@ export const AgentNameSchema = z.enum([
   "frontend_lead",
   "mobile_lead",
 ]);
+
+export type AgentName = z.infer<typeof AgentNameSchema>;

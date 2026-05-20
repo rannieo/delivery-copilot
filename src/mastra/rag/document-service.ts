@@ -148,3 +148,23 @@ export async function ingestProjectDocument(input: {
     throw error;
   }
 }
+
+export async function deindexProjectDocument(input: {
+  documentId: string;
+}): Promise<void> {
+  const { deleteProjectDocument } = await import(
+    "../../db/repositories/project-document-repository.ts"
+  );
+
+  const { vectorIds } = await deleteProjectDocument({ documentId: input.documentId });
+
+  if (vectorIds.length === 0) {
+    return;
+  }
+
+  await ensureProjectVectorIndex();
+  await getProjectVectorStore().deleteVectors({
+    indexName: ragConfig.indexName,
+    ids: vectorIds,
+  });
+}

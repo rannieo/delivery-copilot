@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
-import { getDb } from "../client";
-import { finalPlans } from "../schema";
+import { getDb } from "../client.ts";
+import { finalPlans } from "../schema.ts";
 
 export type FinalPlan = typeof finalPlans.$inferSelect;
 

@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -39,6 +40,7 @@ export const projectDocuments = pgTable(
   (t) => [
     index("idx_project_documents_project_id").on(t.projectId),
     index("idx_project_documents_content_hash").on(t.contentHash),
+    uniqueIndex("uq_project_documents_project_content").on(t.projectId, t.contentHash),
   ],
 );
 

@@ -1,8 +1,8 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { backendLeadPrompt } from '../shared/prompts/backend-lead-prompt';
-import { defaultAgentModelConfig } from '../config';
-import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool';
+import { backendLeadPrompt } from '../shared/prompts/backend-lead-prompt.ts';
+import { defaultAgentModelConfig } from '../config/index.ts';
+import { retrieveProjectContextTool } from '../tools/retrieve-project-context-tool.ts';
 
 export const backendLeadAgent = new Agent({
   id: 'backend-lead-agent',

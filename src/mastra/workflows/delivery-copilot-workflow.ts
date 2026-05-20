@@ -2,18 +2,21 @@ import { createWorkflow } from "@mastra/core/workflows";
 import {
   DeliveryWorkflowInputSchema,
   DeliveryWorkflowResultSchema,
-} from "../shared/schema/delivery-schema";
-import { productAnalystStep } from "./steps/product-analyst-step";
-import { solutionArchitectStep } from "./steps/solution-architect-step";
-import { securityStep } from "./steps/security-manager-step";
-import { backendLeadStep } from "./steps/backend-lead-step";
-import { qaEngineerStep } from "./steps/qa-engineer-step";
-import { deliveryManagerStep } from "./steps/delivery-manager-step";
-import { finalAggregatorStep } from "./steps/final-aggregator-step";
-import { frontendLeadStep } from "./steps/frontend-lead-step";
-import { mobileLeadStep } from "./steps/mobile-lead-step";
-import { initializeWorkflowRunStep } from "./steps/initialize-workflow-run-step";
-import { failWorkflowRunByMastraRunId } from "../../db/repositories/workflow-run-repository";
+} from "../shared/schema/delivery-schema.ts";
+import { productAnalystStep } from "./steps/product-analyst-step.ts";
+import { solutionArchitectStep } from "./steps/solution-architect-step.ts";
+import { securityStep } from "./steps/security-manager-step.ts";
+import { backendLeadStep } from "./steps/backend-lead-step.ts";
+import { qaEngineerStep } from "./steps/qa-engineer-step.ts";
+import { deliveryManagerStep } from "./steps/delivery-manager-step.ts";
+import { finalAggregatorStep } from "./steps/final-aggregator-step.ts";
+import { frontendLeadStep } from "./steps/frontend-lead-step.ts";
+import { mobileLeadStep } from "./steps/mobile-lead-step.ts";
+import { initializeWorkflowRunStep } from "./steps/initialize-workflow-run-step.ts";
+import {
+  completeWorkflowRunByMastraRunId,
+  failWorkflowRunByMastraRunId,
+} from "../../db/repositories/workflow-run-repository.ts";
 
 const FAILED_TERMINAL_STATUSES = new Set(["failed", "tripwire", "canceled", "bailed"]);
 
@@ -48,6 +51,10 @@ export const deliveryCopilotWorkflow = createWorkflow({
     },
 
     onFinish: async ({ runId, status, error }) => {
+      if (status === "success") {
+        await completeWorkflowRunByMastraRunId({ mastraRunId: runId });
+        return;
+      }
       if (FAILED_TERMINAL_STATUSES.has(status)) {
         await failWorkflowRunByMastraRunId({
           mastraRunId: runId,

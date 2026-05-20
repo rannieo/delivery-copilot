@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { getDb } from "../client";
-import { projects } from "../schema";
+import { getDb } from "../client.ts";
+import { projects } from "../schema.ts";
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;

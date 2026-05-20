@@ -1,14 +1,13 @@
 import { createStep } from "@mastra/core/workflows";
-import { DeliveryWorkflowContextSchema, DeliveryWorkflowResultSchema } from "../../shared/schema/delivery-schema";
-import { FinalPlanOutputSchema } from "../../shared/schema/agent-artifact-output-schema";
-import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
-import { finalPlanPath, runDir } from "../../shared/workspace-paths";
-import { deliveryWorkflowModelSettings } from "../../config";
-import { coerceFinalPlanPayload } from "../../helpers/structured-output";
-import { saveFinalPlan } from "../../../db/repositories/final-plan-repository";
-import { completeWorkflowRun } from "../../../db/repositories/workflow-run-repository";
-import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service";
-import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval";
+import { DeliveryWorkflowContextSchema, DeliveryWorkflowResultSchema } from "../../shared/schema/delivery-schema.ts";
+import { FinalPlanOutputSchema } from "../../shared/schema/agent-artifact-output-schema.ts";
+import { buildAgentPrompt } from "../../helpers/index.ts";
+import { finalPlanPath, runDir } from "../../shared/workspace-paths.ts";
+import { deliveryWorkflowModelSettings } from "../../config/index.ts";
+import { coerceFinalPlanPayload } from "../../helpers/structured-output.ts";
+import { saveFinalPlan } from "../../../db/repositories/final-plan-repository.ts";
+import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service.ts";
+import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval.ts";
 
 export const finalAggregatorStep = createStep({
   id: "final-aggregator-step",
@@ -86,19 +85,6 @@ Return a structured response matching the requested schema with a single "markdo
 
     const finalMarkdown = payload.markdown;
 
-    const artifact = buildArtifact({
-      agentName: "final_aggregator",
-      artifactType: "final_technical_delivery_plan",
-      markdown: finalMarkdown,
-    });
-
-    await persistArtifact({
-      projectId: inputData.projectId,
-      workflowRunId: inputData.workflowRunId,
-      artifact,
-      mastra,
-    });
-
     const workspace = mastra.getWorkspace();
     if (!workspace?.filesystem) {
       throw new Error("Workspace filesystem not configured");
@@ -115,14 +101,12 @@ Return a structured response matching the requested schema with a single "markdo
       markdown: planPath,
     });
 
-    await completeWorkflowRun({ workflowRunId: inputData.workflowRunId });
-
     return {
       projectId: inputData.projectId,
       workflowRunId: inputData.workflowRunId,
       planTitle,
       finalMarkdown,
-      artifacts: [...inputData.artifacts, artifact],
+      artifacts: inputData.artifacts,
     };
   },
 });

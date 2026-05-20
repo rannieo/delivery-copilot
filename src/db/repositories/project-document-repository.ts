@@ -21,12 +21,36 @@ export async function createProjectDocument(input: {
       sourceType: input.sourceType,
       contentHash: input.contentHash,
     })
+    .onConflictDoUpdate({
+      target: [projectDocuments.projectId, projectDocuments.contentHash],
+      set: {
+        sourceName: input.sourceName,
+        sourceType: input.sourceType,
+        status: "pending",
+        errorMessage: null,
+        updatedAt: sql`now()`,
+      },
+    })
     .returning();
 
   if (!row) {
     throw new Error("Failed to create project document");
   }
   return row;
+}
+
+export async function deleteProjectDocument(input: {
+  documentId: string;
+}): Promise<{ vectorIds: string[] }> {
+  const db = getDb();
+  const chunks = await db
+    .select({ vectorId: projectDocumentChunks.vectorId })
+    .from(projectDocumentChunks)
+    .where(eq(projectDocumentChunks.documentId, input.documentId));
+
+  await db.delete(projectDocuments).where(eq(projectDocuments.id, input.documentId));
+
+  return { vectorIds: chunks.map((chunk) => chunk.vectorId) };
 }
 
 export async function getProjectDocumentById(input: {
