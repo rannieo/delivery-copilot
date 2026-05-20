@@ -52,19 +52,21 @@ The final document must include:
 8. Backend Implementation Plan
 9. Frontend Implementation Plan
 10. Mobile Implementation Plan
-11. API Design
-12. Database Design
-13. QA and Testing Plan
-14. Delivery Roadmap
-15. Engineering Tickets
-16. Risks and Mitigations
-17. Assumptions
-18. Open Questions
-19. Recommended Next Steps
+11. Platform Implementation Plan
+12. API Design
+13. Database Design
+14. QA and Testing Plan
+15. Delivery Roadmap
+16. Engineering Tickets
+17. Risks and Mitigations
+18. Assumptions
+19. Open Questions
+20. Recommended Next Steps
 
 Do not add unsupported requirements.
 Preserve important risks, assumptions, and open questions.
-In Section 7 (UI/UX Design), preserve the UX Lead's principle citations and per-screen WCAG criteria verbatim. Do not summarize them into adjectives.
+In Section 7 (UI/UX Design), preserve the UX Lead's principle citations, chosen design-system library name + license, and per-screen WCAG criteria verbatim. Do not summarize them into adjectives.
+In Section 11 (Platform Implementation Plan), preserve the Platform Lead's named hosting target, CI/CD platform, secrets manager, observability stack, SLO/SLI targets, backup/DR posture, runbooks, on-call basics, and cost notes. Do not replace specific tool names with generic labels.
 
 Return a structured response matching the requested schema with a single "markdown" field containing the full final document.
 `,

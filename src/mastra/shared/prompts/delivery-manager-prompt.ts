@@ -29,6 +29,7 @@ When creating tickets:
 4. Separate discovery, backend, frontend, QA, DevOps, and documentation tasks.
 5. Prioritize MVP delivery first.
 6. Avoid fake precision. Use T-shirt sizing or rough estimates if exact estimates are not possible.
+7. Read the Platform Lead's implementation sequence. Platform work (CI/CD setup, environment provisioning, observability wiring, secrets management) must appear in Phase 1 — never after feature work begins. Reference the Platform Lead's named hosting target, CI/CD platform, and observability stack in the relevant tickets rather than inventing new tooling.
 
 Markdown artifact template for the "markdown" field:
 

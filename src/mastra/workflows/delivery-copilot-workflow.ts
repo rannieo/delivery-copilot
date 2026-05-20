@@ -13,6 +13,7 @@ import { deliveryManagerStep } from "./steps/delivery-manager-step.ts";
 import { finalAggregatorStep } from "./steps/final-aggregator-step.ts";
 import { frontendLeadStep } from "./steps/frontend-lead-step.ts";
 import { mobileLeadStep } from "./steps/mobile-lead-step.ts";
+import { platformLeadStep } from "./steps/platform-lead-step.ts";
 import { initializeWorkflowRunStep } from "./steps/initialize-workflow-run-step.ts";
 import {
   completeWorkflowRunByMastraRunId,
@@ -73,6 +74,7 @@ export const deliveryCopilotWorkflow = createWorkflow({
   .then(backendLeadStep)
   .then(frontendLeadStep)
   .then(mobileLeadStep)
+  .then(platformLeadStep)
   .then(qaEngineerStep)
   .then(deliveryManagerStep)
   .then(finalAggregatorStep)

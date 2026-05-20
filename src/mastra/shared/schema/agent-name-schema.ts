@@ -6,6 +6,7 @@ export const AgentNameSchema = z.enum([
   "security_manager",
   "ux_lead",
   "backend_lead",
+  "platform_lead",
   "qa_engineer",
   "delivery_manager",
   "final_aggregator",
