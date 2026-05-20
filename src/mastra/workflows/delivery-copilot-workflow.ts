@@ -7,6 +7,8 @@ import { backendLeadStep } from "./steps/backend-lead-step";
 import { qaEngineerStep } from "./steps/qa-engineer-step";
 import { deliveryManagerStep } from "./steps/delivery-manager-step";
 import { finalAggregatorStep } from "./steps/final-aggregator-step";
+import { frontendLeadStep } from "./steps/frontend-lead-step";
+import { mobileLeadStep } from "./steps/mobile-lead-step";
 
 
 /**
@@ -23,6 +25,8 @@ export const deliveryCopilotWorkflow = createWorkflow({
   .then(solutionArchitectStep)
   .then(securityStep)
   .then(backendLeadStep)
+  .then(frontendLeadStep)
+  .then(mobileLeadStep)
   .then(qaEngineerStep)
   .then(deliveryManagerStep)
   .then(finalAggregatorStep)

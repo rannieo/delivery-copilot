@@ -30,15 +30,17 @@ The final document must include:
 5. Proposed Architecture
 6. Security Review and Controls
 7. Backend Implementation Plan
-8. API Design
-9. Database Design
-10. QA and Testing Plan
-11. Delivery Roadmap
-12. Engineering Tickets
-13. Risks and Mitigations
-14. Assumptions
-15. Open Questions
-16. Recommended Next Steps
+8. Frontend Implementation Plan
+9. Mobile Implementation Plan
+10. API Design
+11. Database Design
+12. QA and Testing Plan
+13. Delivery Roadmap
+14. Engineering Tickets
+15. Risks and Mitigations
+16. Assumptions
+17. Open Questions
+18. Recommended Next Steps
 
 Do not add unsupported requirements.
 Preserve important risks, assumptions, and open questions.

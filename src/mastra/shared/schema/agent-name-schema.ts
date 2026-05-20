@@ -8,4 +8,6 @@ export const AgentNameSchema = z.enum([
   "qa_engineer",
   "delivery_manager",
   "final_aggregator",
+  "frontend_lead",
+  "mobile_lead",
 ]);
