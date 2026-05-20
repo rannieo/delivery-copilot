@@ -1,0 +1,36 @@
+import { z } from 'zod'
+import { AgentNameSchema } from './agent-name-schema';
+
+const DeliveryArtifactSchema = z.object({
+  agentName: AgentNameSchema,
+  artifactType: z.string(),
+  markdown: z.string(),
+  summary: z.string(),
+  assumptions: z.array(z.string()),
+  risks: z.array(z.string()),
+  openQuestions: z.array(z.string()),
+});
+
+export const DeliveryWorkflowInputSchema = z.object({
+  projectId: z.string(),
+  rawInput: z.string().min(1),
+  planTitle: z.string().optional(),
+});
+
+export const DeliveryWorkflowContextSchema = z.object({
+  projectId: z.string(),
+  rawInput: z.string(),
+  planTitle: z.string().optional(),
+  artifacts: z.array(DeliveryArtifactSchema),
+});
+
+export const DeliveryWorkflowResultSchema = z.object({
+  projectId: z.string(),
+  planTitle: z.string(),
+  finalMarkdown: z.string(),
+  artifacts: z.array(DeliveryArtifactSchema),
+});
+
+export type AgentName = z.infer<typeof AgentNameSchema>;
+export type DeliveryArtifact = z.infer<typeof DeliveryArtifactSchema>;
+export type DeliveryWorkflowContext = z.infer<typeof DeliveryWorkflowContextSchema>;

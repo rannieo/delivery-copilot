@@ -1,0 +1,11 @@
+import { z } from "zod";
+
+export const AgentNameSchema = z.enum([
+  "product_analyst",
+  "solution_architect",
+  "security_manager",
+  "backend_lead",
+  "qa_engineer",
+  "delivery_manager",
+  "final_aggregator",
+]);
