@@ -1,30 +1,63 @@
-# test-mastra
+# Delivery Copilot
 
-Welcome to your new [Mastra](https://mastra.ai/) project! We're excited to see what you'll build.
+A multi-agent [Mastra](https://mastra.ai/) application that turns a raw product brief or PRD into a complete technical delivery plan. Seven specialist agents collaborate in sequence — product analysis, solution architecture, security review, backend design, QA strategy, delivery planning, and a final aggregation pass — to produce a single Markdown plan ready for engineering kickoff.
 
-## Getting Started
+## How it works
 
-Start the development server:
+Given `{ projectId, rawInput, planTitle? }`, the `deliveryCopilotWorkflow` runs the input through the pipeline below. Each step writes a structured `DeliveryArtifact` (summary, assumptions, risks, open questions, Markdown body) into the shared workflow context, and the final aggregator stitches the artifacts into a unified delivery document.
+
+```
+rawInput
+  → Product Analyst       (clarifies scope, user stories, acceptance criteria)
+  → Solution Architect    (system design, components, data flow)
+  → Security Manager      (threat model, controls, compliance checks)
+  → Backend Lead          (API/data layer, implementation breakdown)
+  → QA Engineer           (test strategy, coverage, automation plan)
+  → Delivery Manager      (milestones, sequencing, risks)
+  → Final Plan Aggregator (consolidates everything into finalMarkdown)
+```
+
+## Project structure
+
+| Path                            | Purpose                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `src/mastra/index.ts`           | Mastra entry point — registers agents, workflow, scorers, storage, observability |
+| `src/mastra/agents/`            | Seven specialist agents that make up the pipeline                       |
+| `src/mastra/workflows/`         | `deliveryCopilotWorkflow` and its per-agent step wrappers in `steps/`   |
+| `src/mastra/tools/`             | Reusable tools (parse input, save artifacts, generate/export Markdown, ticket drafts, security checklist, project context) |
+| `src/mastra/scorers/`           | Scorers for evaluating agent output quality                             |
+| `src/mastra/shared/`            | Cross-cutting code — Zod schemas, prompts, shared rules, project store  |
+
+## Requirements
+
+- Node.js `>=22.13.0`
+- A configured model provider key (see `.env.example`)
+
+## Getting started
 
 ```shell
+npm install
+cp .env.example .env   # add your model provider key(s)
 npm run dev
 ```
 
-Open [http://localhost:4111](http://localhost:4111) in your browser to access [Mastra Studio](https://mastra.ai/docs/studio/overview). It provides an interactive UI for building and testing your agents, along with a REST API that exposes your Mastra application as a local service. This lets you start building without worrying about integration right away.
+Open [http://localhost:4111](http://localhost:4111) to use [Mastra Studio](https://mastra.ai/docs/studio/overview) — an interactive UI for invoking the `deliveryCopilotWorkflow`, inspecting per-agent artifacts, and reviewing traces.
 
-You can start editing files inside the `src/mastra` directory. The development server will automatically reload whenever you make changes.
+## Scripts
+
+| Command         | What it does                                |
+| --------------- | ------------------------------------------- |
+| `npm run dev`   | Start Mastra Studio at `localhost:4111`     |
+| `npm run build` | Build a production-ready server bundle      |
+| `npm start`     | Run the built server                        |
+
+## Storage & observability
+
+- **Storage**: `MastraCompositeStore` with `LibSQLStore` (`mastra.db`) as the default and `DuckDBStore` for the observability domain.
+- **Observability**: `MastraStorageExporter` persists spans locally; `MastraPlatformExporter` ships them to the Mastra Platform when `MASTRA_PLATFORM_ACCESS_TOKEN` is set. A `SensitiveDataFilter` redacts secrets before export.
 
 ## Learn more
 
-To learn more about Mastra, visit our [documentation](https://mastra.ai/docs/). Your bootstrapped project includes example code for [agents](https://mastra.ai/docs/agents/overview), [tools](https://mastra.ai/docs/agents/using-tools), [workflows](https://mastra.ai/docs/workflows/overview), [scorers](https://mastra.ai/docs/evals/overview), and [observability](https://mastra.ai/docs/observability/overview).
-
-If you're new to AI agents, check out our [course](https://mastra.ai/learn) and [YouTube videos](https://youtube.com/@mastra-ai). You can also join our [Discord](https://discord.gg/BTYqqHKUrf) community to get help and share your projects.
-
-## Deploy to the Mastra platform
-
-The [Mastra platform](https://projects.mastra.ai) provides two products for deploying and managing AI applications built with the Mastra framework:
-
-- **Studio**: A hosted visual environment for testing agents, running workflows, and inspecting traces
-- **Server**: A production deployment target that runs your Mastra application as an API server
-
-Learn more in the [Mastra platform documentation](https://mastra.ai/docs/mastra-platform/overview).
+- [Mastra documentation](https://mastra.ai/docs/)
+- [Agents overview](https://mastra.ai/docs/agents/overview) · [Workflows](https://mastra.ai/docs/workflows/overview) · [Tools](https://mastra.ai/docs/agents/using-tools) · [Scorers](https://mastra.ai/docs/evals/overview)
+- [Mastra Platform](https://projects.mastra.ai) for hosted Studio and production deployment
