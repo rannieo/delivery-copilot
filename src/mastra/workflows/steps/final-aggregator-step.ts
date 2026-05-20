@@ -7,6 +7,8 @@ import { deliveryWorkflowModelSettings } from "../../config";
 import { coerceFinalPlanPayload } from "../../helpers/structured-output";
 import { saveFinalPlan } from "../../../db/repositories/final-plan-repository";
 import { completeWorkflowRun } from "../../../db/repositories/workflow-run-repository";
+import { retrieveProjectContextForPrompt } from "../../rag/retrieval-service.ts";
+import { buildAgentRetrievalQuery } from "../../rag/workflow-retrieval.ts";
 
 export const finalAggregatorStep = createStep({
   id: "final-aggregator-step",
@@ -17,6 +19,18 @@ export const finalAggregatorStep = createStep({
   execute: async ({ inputData, mastra }) => {
     const agent = mastra.getAgentById("final-plan-aggregator-agent");
     const planTitle = inputData.planTitle ?? "Technical Delivery Plan";
+    const retrievedContext =
+      inputData.useRag === false
+        ? "No retrieved project context."
+        : await retrieveProjectContextForPrompt({
+            projectId: inputData.projectId,
+            topK: 10,
+            query: buildAgentRetrievalQuery({
+              role: "Final Plan Aggregator Agent",
+              rawInput: inputData.rawInput,
+              artifactSummaries: inputData.artifacts.map((artifact) => artifact.summary),
+            }),
+          });
 
     const response = await agent.generate(
       buildAgentPrompt({
@@ -24,6 +38,7 @@ export const finalAggregatorStep = createStep({
         projectId: inputData.projectId,
         rawInput: inputData.rawInput,
         artifacts: inputData.artifacts,
+        retrievedContext,
         specificInstruction: `
 Create one polished final Markdown document titled "${planTitle}".
 

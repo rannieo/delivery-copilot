@@ -15,8 +15,19 @@ import { frontendLeadAgent } from './agents/frontend-lead-agent';
 import { mobileLeadAgent } from './agents/mobile-lead-agent';
 import { mastraStorage } from './storage';
 import { createMastraWorkspace } from './workspace';
+import { projectDocumentApiRoutes } from './api/project-documents-routes';
 
 export const mastra = new Mastra({
+  server: {
+    cors: {
+      origin: process.env.FRONTEND_ORIGIN ?? "http://localhost:3000",
+      allowMethods: ["GET", "POST", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization", "x-mastra-client-type"],
+      exposeHeaders: ["Content-Length", "X-Requested-With"],
+      credentials: true,
+    },
+    apiRoutes: projectDocumentApiRoutes,
+  },
   workflows: {
     deliveryCopilotWorkflow
   },

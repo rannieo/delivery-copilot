@@ -29,6 +29,7 @@ export const initializeWorkflowRunStep = createStep({
       workflowRunId: run.id,
       rawInput: inputData.rawInput,
       planTitle: inputData.planTitle,
+      useRag: inputData.useRag,
       artifacts: [],
     };
   },

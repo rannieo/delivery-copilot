@@ -67,9 +67,11 @@ export function buildAgentPrompt(params: {
   projectId: string;
   rawInput: string;
   artifacts: DeliveryArtifact[];
+  retrievedContext?: string;
   specificInstruction: string;
 }): string {
   const previousArtifacts = renderCompactArtifacts(params.artifacts);
+  const retrievedContext = params.retrievedContext ?? "No retrieved project context.";
 
   return `
 You are running inside the Delivery Copilot workflow.
@@ -89,6 +91,9 @@ ${truncateText(params.rawInput, RAW_INPUT_CONTEXT_LIMIT)}
 
 Previous Agent Outputs:
 ${previousArtifacts}
+
+Retrieved Context:
+${retrievedContext}
 
 Your Role:
 ${params.role}

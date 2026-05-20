@@ -16,6 +16,7 @@ export const DeliveryWorkflowInputSchema = z.object({
   projectDescription: z.string().optional(),
   rawInput: z.string().min(1),
   planTitle: z.string().optional(),
+  useRag: z.boolean().default(true),
 });
 
 export const DeliveryWorkflowContextSchema = z.object({
@@ -23,6 +24,7 @@ export const DeliveryWorkflowContextSchema = z.object({
   workflowRunId: z.string(),
   rawInput: z.string(),
   planTitle: z.string().optional(),
+  useRag: z.boolean().default(true),
   artifacts: z.array(DeliveryArtifactSchema),
 });
 
