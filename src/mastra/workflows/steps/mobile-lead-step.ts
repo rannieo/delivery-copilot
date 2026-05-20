@@ -1,6 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 
 export const mobileLeadStep = createStep({
   id: "mobile-lead-step",
@@ -28,6 +28,11 @@ export const mobileLeadStep = createStep({
       markdown: response.text,
     });
 
+    await persistArtifact({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
+    });
     return {
       ...inputData,
       artifacts: [...inputData.artifacts, artifact],

@@ -492,7 +492,7 @@ const agent = new Agent({
 - OpenAI: `openai/gpt-5.4`, `openai/gpt-5-mini`
 - Anthropic: `anthropic/claude-sonnet-4-5`, `anthropic/claude-haiku-4-5`, `anthropic/claude-opus-4-6`
 - Google: `google/gemini-2.5-pro`, `google/gemini-2.5-flash`
-- Ollama Cloud: `ollama-cloud/gpt-oss:120b`
+- Ollama Cloud: `ollama-cloud/qwen3.5:397b`, `ollama-cloud/qwen3.5:397b`, `ollama-cloud/qwen3.5:397b`
 
 **Use embedded docs to verify**:
 

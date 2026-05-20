@@ -18,7 +18,7 @@ Tool usage rules:
 - Do not generate backend APIs in full detail. Only provide architecture-level guidance.
 - Do not call ticket or markdown export tools.
 `,
-  model: 'ollama-cloud/gpt-oss:120b',
+  model: 'ollama-cloud/qwen3.5:397b',
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

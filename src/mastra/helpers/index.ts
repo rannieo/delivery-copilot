@@ -1,3 +1,4 @@
+import { saveAgentArtifact } from "../../server/repositories/artifact-repository";
 import { AgentName, DeliveryArtifact } from "../shared/schema/delivery-schema";
 
 function renderArtifactsForPrompt(artifacts: DeliveryArtifact[]): string {
@@ -72,4 +73,16 @@ ${params.role}
 Task:
 ${params.specificInstruction}
 `;
+}
+
+export async function persistArtifact(params: {
+  projectId: string;
+  workflowRunId: string;
+  artifact: DeliveryArtifact;
+}): Promise<void> {
+  await saveAgentArtifact({
+    projectId: params.projectId,
+    workflowRunId: params.workflowRunId,
+    artifact: params.artifact
+  });
 }

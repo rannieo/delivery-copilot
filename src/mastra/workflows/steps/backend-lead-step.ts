@@ -1,6 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 
 export const backendLeadStep = createStep({
   id: "backend-lead-step",
@@ -26,6 +26,12 @@ export const backendLeadStep = createStep({
       agentName: "backend_lead",
       artifactType: "backend_implementation_plan",
       markdown: response.text,
+    });
+
+    await persistArtifact({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
     });
 
     return {

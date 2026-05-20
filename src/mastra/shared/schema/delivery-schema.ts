@@ -12,13 +12,15 @@ const DeliveryArtifactSchema = z.object({
 });
 
 export const DeliveryWorkflowInputSchema = z.object({
-  projectId: z.string(),
+  projectName: z.string().min(1),
+  projectDescription: z.string().optional(),
   rawInput: z.string().min(1),
   planTitle: z.string().optional(),
 });
 
 export const DeliveryWorkflowContextSchema = z.object({
   projectId: z.string(),
+  workflowRunId: z.string(),
   rawInput: z.string(),
   planTitle: z.string().optional(),
   artifacts: z.array(DeliveryArtifactSchema),
@@ -26,6 +28,7 @@ export const DeliveryWorkflowContextSchema = z.object({
 
 export const DeliveryWorkflowResultSchema = z.object({
   projectId: z.string(),
+  workflowRunId: z.string(),
   planTitle: z.string(),
   finalMarkdown: z.string(),
   artifacts: z.array(DeliveryArtifactSchema),

@@ -1,6 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 
 /**
  * Build the actual step for Product Analyst
@@ -29,6 +29,12 @@ export const solutionArchitectStep = createStep({
       agentName: "solution_architect",
       artifactType: "solution_architecture_proposal",
       markdown: response.text,
+    });
+
+    await persistArtifact({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
     });
 
     return {

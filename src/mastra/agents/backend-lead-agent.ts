@@ -19,7 +19,7 @@ Tool usage rules:
 - If a security recommendation is not implemented, list it under "Deferred Security Controls" with a reason.
 - Do not create delivery tickets directly.
 `,
-  model: 'ollama-cloud/gpt-oss:120b',
+  model: 'ollama-cloud/qwen3.5:397b',
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

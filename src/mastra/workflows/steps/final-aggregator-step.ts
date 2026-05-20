@@ -1,6 +1,8 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema, DeliveryWorkflowResultSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
+import { saveFinalPlan } from "../../../server/repositories/final-plan-repository";
+import { completeWorkflowRun, failWorkflowRun } from "../../../server/repositories/workflow-run-repository";
 
 export const finalAggregatorStep = createStep({
   id: "final-aggregator-step",
@@ -13,13 +15,14 @@ export const finalAggregatorStep = createStep({
 
     const planTitle = inputData.planTitle ?? "Technical Delivery Plan";
 
-    const response = await agent.generate(
-      buildAgentPrompt({
-        role: "Final Plan Aggregator Agent",
-        projectId: inputData.projectId,
-        rawInput: inputData.rawInput,
-        artifacts: inputData.artifacts,
-        specificInstruction: `
+    try {
+      const response = await agent.generate(
+        buildAgentPrompt({
+          role: "Final Plan Aggregator Agent",
+          projectId: inputData.projectId,
+          rawInput: inputData.rawInput,
+          artifacts: inputData.artifacts,
+          specificInstruction: `
 Create one polished final Markdown document titled "${planTitle}".
 
 The final document must include:
@@ -45,20 +48,47 @@ The final document must include:
 Do not add unsupported requirements.
 Preserve important risks, assumptions, and open questions.
 `,
-      }),
-    );
+        }),
+      );
 
-    const artifact = buildArtifact({
-      agentName: "final_aggregator",
-      artifactType: "final_technical_delivery_plan",
-      markdown: response.text,
-    });
+      const artifact = buildArtifact({
+        agentName: "final_aggregator",
+        artifactType: "final_technical_delivery_plan",
+        markdown: response.text,
+      });
 
-    return {
-      projectId: inputData.projectId,
-      planTitle,
-      finalMarkdown: response.text,
-      artifacts: [...inputData.artifacts, artifact],
-    };
+      await persistArtifact({
+        projectId: inputData.projectId,
+        workflowRunId: inputData.workflowRunId,
+        artifact,
+      });
+
+      await saveFinalPlan({
+        projectId: inputData.projectId,
+        workflowRunId: inputData.workflowRunId,
+        title: planTitle,
+        markdown: response.text,
+      });
+
+      await completeWorkflowRun({
+        workflowRunId: inputData.workflowRunId,
+      });
+
+      return {
+        projectId: inputData.projectId,
+        workflowRunId: inputData.workflowRunId,
+        planTitle,
+        finalMarkdown: response.text,
+        artifacts: [...inputData.artifacts, artifact],
+      };
+    } catch (error) {
+      await failWorkflowRun({
+        workflowRunId: inputData.workflowRunId,
+        errorMessage:
+          error instanceof Error ? error.message : "Unknown workflow error",
+      });
+
+      throw error;
+    }
   },
 });

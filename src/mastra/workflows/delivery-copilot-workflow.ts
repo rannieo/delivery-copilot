@@ -9,6 +9,7 @@ import { deliveryManagerStep } from "./steps/delivery-manager-step";
 import { finalAggregatorStep } from "./steps/final-aggregator-step";
 import { frontendLeadStep } from "./steps/frontend-lead-step";
 import { mobileLeadStep } from "./steps/mobile-lead-step";
+import { initializeWorkflowRunStep } from "./steps/initialize-workflow-run-step";
 
 
 /**
@@ -21,6 +22,7 @@ export const deliveryCopilotWorkflow = createWorkflow({
   inputSchema: DeliveryWorkflowInputSchema,
   outputSchema: DeliveryWorkflowResultSchema,
 })
+  .then(initializeWorkflowRunStep)
   .then(productAnalystStep)
   .then(solutionArchitectStep)
   .then(securityStep)

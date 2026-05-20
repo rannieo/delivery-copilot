@@ -1,6 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 
 export const qaEngineerStep = createStep({
   id: "qa-engineer-step",
@@ -26,6 +26,12 @@ export const qaEngineerStep = createStep({
       agentName: "qa_engineer",
       artifactType: "qa_test_plan",
       markdown: response.text,
+    });
+
+    await persistArtifact({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
     });
 
     return {

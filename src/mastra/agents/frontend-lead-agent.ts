@@ -18,7 +18,7 @@ Tool usage rules:
 - Security Agent output is mandatory context because frontend must reflect auth, permissions, masking, and safe error states.
 - Do not create delivery tickets directly.
 `,
-    model: 'ollama-cloud/gpt-oss:120b',
+    model: 'ollama-cloud/qwen3.5:397b',
     tools: {
         retrieveProjectContextTool,
         saveAgentOutputTool,

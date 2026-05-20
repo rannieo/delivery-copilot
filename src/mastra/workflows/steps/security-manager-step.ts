@@ -1,6 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 
 export const securityStep = createStep({
   id: "security-step",
@@ -26,6 +26,12 @@ export const securityStep = createStep({
       agentName: "security_manager",
       artifactType: "security_review_and_control_plan",
       markdown: response.text,
+    });
+
+    await persistArtifact({
+      projectId: inputData.projectId,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
     });
 
     return {

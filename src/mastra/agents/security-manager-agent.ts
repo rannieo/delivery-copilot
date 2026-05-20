@@ -19,7 +19,7 @@ Tool usage rules:
 - Use saveAgentOutputTool after producing the final Security Review and Control Plan.
 - Do not create implementation tickets directly.
 `,
-  model: 'ollama-cloud/gpt-oss:120b',
+  model: 'ollama-cloud/qwen3.5:397b',
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

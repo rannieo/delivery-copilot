@@ -19,7 +19,7 @@ Tool usage rules:
 - Frontend Lead output is mandatory context so mobile-specific scope does not duplicate responsive web scope.
 - Do not create delivery tickets directly.
 `,
-  model: 'ollama-cloud/gpt-oss:120b',
+  model: 'ollama-cloud/qwen3.5:397b',
   tools: {
     retrieveProjectContextTool,
     saveAgentOutputTool,

@@ -21,7 +21,7 @@ Tool usage rules:
 - Use saveAgentOutputTool after producing the final aggregated plan.
 - Do not introduce new requirements that are not supported by previous agent outputs.
 `,
-  model: 'ollama-cloud/gpt-oss:120b',
+  model: 'ollama-cloud/qwen3.5:397b',
   memory: new Memory(),
   tools: {
     retrieveProjectContextTool,

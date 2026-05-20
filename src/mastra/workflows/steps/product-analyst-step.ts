@@ -1,6 +1,6 @@
 import { createStep } from "@mastra/core/workflows";
 import { DeliveryWorkflowContextSchema, DeliveryWorkflowInputSchema } from "../../shared/schema/delivery-schema";
-import { buildAgentPrompt, buildArtifact } from "../../helpers";
+import { buildAgentPrompt, buildArtifact, persistArtifact } from "../../helpers";
 
 /**
  * Build the actual step for Product Analyst
@@ -8,7 +8,7 @@ import { buildAgentPrompt, buildArtifact } from "../../helpers";
 export const productAnalystStep = createStep({
   id: "product-analyst-step",
   description: "Extracts business requirements from raw project input.",
-  inputSchema: DeliveryWorkflowInputSchema,
+  inputSchema: DeliveryWorkflowContextSchema,
   outputSchema: DeliveryWorkflowContextSchema,
 
   execute: async ({ inputData, mastra }) => {
@@ -31,10 +31,14 @@ export const productAnalystStep = createStep({
       markdown: response.text,
     });
 
-    return {
+    await persistArtifact({
       projectId: inputData.projectId,
-      rawInput: inputData.rawInput,
-      planTitle: inputData.planTitle,
+      workflowRunId: inputData.workflowRunId,
+      artifact,
+    });
+
+    return {
+      ...inputData,
       artifacts: [artifact],
     };
   },
