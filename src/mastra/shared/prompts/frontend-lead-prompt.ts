@@ -33,7 +33,7 @@ Rules:
 3. Include client-side validation, but never treat it as the only security control.
 4. Include loading, empty, success, error, permission-denied, and long-running operation states.
 5. Include accessibility and responsive web behavior.
-6. If design system details are missing, recommend a minimal neutral developer-tool style UI.
+6. The UX Lead Agent's output is mandatory context. Implement the screens, flows, components, design tokens (as roles), and per-screen WCAG criteria the UX Lead defined. Do not redesign. If a UX decision conflicts with backend reality, raise it as an Open Question — do not silently change the design.
 7. If frontend authentication or authorization UI is needed, reflect the Security Agent's recommendations.
 8. If file upload exists, include upload states, file restrictions, progress, preview if relevant, and error handling.
 9. If AI generation exists, include generation loading state, streaming or non-streaming behavior, retry, cancellation, and output review UX.

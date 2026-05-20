@@ -48,21 +48,23 @@ The final document must include:
 4. Non-Functional Requirements
 5. Proposed Architecture
 6. Security Review and Controls
-7. Backend Implementation Plan
-8. Frontend Implementation Plan
-9. Mobile Implementation Plan
-10. API Design
-11. Database Design
-12. QA and Testing Plan
-13. Delivery Roadmap
-14. Engineering Tickets
-15. Risks and Mitigations
-16. Assumptions
-17. Open Questions
-18. Recommended Next Steps
+7. UI/UX Design
+8. Backend Implementation Plan
+9. Frontend Implementation Plan
+10. Mobile Implementation Plan
+11. API Design
+12. Database Design
+13. QA and Testing Plan
+14. Delivery Roadmap
+15. Engineering Tickets
+16. Risks and Mitigations
+17. Assumptions
+18. Open Questions
+19. Recommended Next Steps
 
 Do not add unsupported requirements.
 Preserve important risks, assumptions, and open questions.
+In Section 7 (UI/UX Design), preserve the UX Lead's principle citations and per-screen WCAG criteria verbatim. Do not summarize them into adjectives.
 
 Return a structured response matching the requested schema with a single "markdown" field containing the full final document.
 `,

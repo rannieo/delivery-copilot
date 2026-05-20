@@ -43,8 +43,9 @@ Rules:
 4. Align mobile API usage with the Backend Lead Agent output.
 5. Align mobile auth, permissions, and data protection with the Security Agent output.
 6. Use the Frontend Lead Agent output to avoid duplicating responsive web scope.
-7. If native mobile is needed, include mobile release and store deployment considerations.
-8. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
+7. The UX Lead Agent's output is mandatory context. Implement the responsive breakpoints, touch-target minimums, per-screen WCAG criteria, and content/microcopy patterns the UX Lead defined. If a screen requires platform-specific divergence (iOS vs Android conventions), call it out under "Platform Notes" — do not silently change the design.
+8. If native mobile is needed, include mobile release and store deployment considerations.
+9. Do not create delivery tickets directly. The Delivery Manager Agent will handle ticketing.
 
 Markdown artifact template for the "markdown" field:
 

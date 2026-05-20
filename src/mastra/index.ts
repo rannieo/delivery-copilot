@@ -13,6 +13,7 @@ import { finalPlanAggregatorAgent } from './agents/final-plan-aggregator-agent.t
 import { deliveryCopilotWorkflow } from './workflows/delivery-copilot-workflow.ts';
 import { frontendLeadAgent } from './agents/frontend-lead-agent.ts';
 import { mobileLeadAgent } from './agents/mobile-lead-agent.ts';
+import { uxLeadAgent } from './agents/ux-lead-agent.ts';
 import { mastraStorage } from './storage.ts';
 import { mastraWorkspace } from './workspace.ts';
 import { projectDocumentApiRoutes } from './api/project-documents-routes.ts';
@@ -41,6 +42,7 @@ export const mastra = new Mastra({
     finalPlanAggregatorAgent,
     frontendLeadAgent,
     mobileLeadAgent,
+    uxLeadAgent,
   },
   workspace: mastraWorkspace,
   storage: new MastraCompositeStore({

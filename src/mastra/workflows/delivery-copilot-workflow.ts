@@ -6,6 +6,7 @@ import {
 import { productAnalystStep } from "./steps/product-analyst-step.ts";
 import { solutionArchitectStep } from "./steps/solution-architect-step.ts";
 import { securityStep } from "./steps/security-manager-step.ts";
+import { uxLeadStep } from "./steps/ux-lead-step.ts";
 import { backendLeadStep } from "./steps/backend-lead-step.ts";
 import { qaEngineerStep } from "./steps/qa-engineer-step.ts";
 import { deliveryManagerStep } from "./steps/delivery-manager-step.ts";
@@ -68,6 +69,7 @@ export const deliveryCopilotWorkflow = createWorkflow({
   .then(productAnalystStep)
   .then(solutionArchitectStep)
   .then(securityStep)
+  .then(uxLeadStep)
   .then(backendLeadStep)
   .then(frontendLeadStep)
   .then(mobileLeadStep)
