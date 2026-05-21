@@ -63,7 +63,7 @@ Each specialist agent produces a structured response. The Markdown artifact live
 - Node.js `>=22.13.0`
 - `pnpm`
 - PostgreSQL with `pgvector`
-- Model provider key(s), for example `OPENAI_API_KEY`
+- Model provider key(s) for the configured agent and embedding models, for example `OLLAMA_API_KEY` and `OPENAI_API_KEY`
 
 The local Docker Postgres service uses `postgres:16-alpine` and runs `database/init/001-pgvector.sql` on first database initialization.
 
@@ -80,6 +80,10 @@ Important settings:
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | Required for Drizzle and Postgres-backed Mastra storage. |
+| `PROJECT_DOCUMENT_API_TOKEN` | Shared secret required by the custom project-document API routes. Send it as `x-delivery-copilot-token`. |
+| `AGENT_MODEL` | Agent model routed through Mastra model router. Defaults to `ollama-cloud/gpt-oss:120b`. |
+| `OLLAMA_API_KEY` | Required when `AGENT_MODEL` uses `ollama-cloud/*`. |
+| `OPENAI_API_KEY` | Required when `RAG_EMBEDDING_MODEL` uses `openai/*`. |
 | `MASTRA_STORAGE_DRIVER` | `postgres` by default. Use `libsql` only for local Mastra state experiments. |
 | `WORKSPACE_BASE_PATH` | Local artifact workspace path when `MASTRA_FILESYSTEM_DRIVER=local`. |
 | `RAG_ENABLED` | Enables workflow prompt retrieval and project document search. |
@@ -120,7 +124,7 @@ Custom routes are registered through Mastra and exposed under the server API pre
 | `DELETE` | `/api/projects/:projectId/documents/:documentId` | Delete document metadata and remove its vector chunks. |
 | `POST` | `/api/projects/:projectId/context/search` | Retrieve source-labeled RAG context for a query. |
 
-Current route auth is intentionally disabled for local/frontend integration. Do not expose these routes to an untrusted origin until real auth is wired.
+All custom project-document routes require the `x-delivery-copilot-token` header to match `PROJECT_DOCUMENT_API_TOKEN`. If the server token is missing, these routes fail closed with `503`.
 
 Example document ingestion payload:
 
@@ -142,6 +146,12 @@ Example context search payload:
   "topK": 6,
   "minScore": 0.55
 }
+```
+
+Example request header:
+
+```http
+x-delivery-copilot-token: change-me-in-production
 ```
 
 ## RAG Flow

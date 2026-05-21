@@ -15,16 +15,23 @@ import { frontendLeadAgent } from './agents/frontend-lead-agent.ts';
 import { mobileLeadAgent } from './agents/mobile-lead-agent.ts';
 import { uxLeadAgent } from './agents/ux-lead-agent.ts';
 import { platformLeadAgent } from './agents/platform-lead-agent.ts';
+import { defaultAgentModel, validateModelConfiguration } from './config/index.ts';
+import { ragConfig } from './rag/config.ts';
 import { mastraStorage } from './storage.ts';
 import { mastraWorkspace } from './workspace.ts';
 import { projectDocumentApiRoutes } from './api/project-documents-routes.ts';
+
+validateModelConfiguration({
+  agentModel: defaultAgentModel,
+  embeddingModel: ragConfig.embeddingModel,
+});
 
 export const mastra = new Mastra({
   server: {
     cors: {
       origin: process.env.FRONTEND_ORIGIN ?? "http://localhost:3000",
-      allowMethods: ["GET", "POST", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization", "x-mastra-client-type"],
+      allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization", "x-mastra-client-type", "x-delivery-copilot-token"],
       exposeHeaders: ["Content-Length", "X-Requested-With"],
       credentials: true,
     },
