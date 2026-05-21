@@ -1,6 +1,6 @@
 import { ModelRouterEmbeddingModel } from "@mastra/core/llm";
 import { embed } from "ai";
-import { ragConfig } from "./config.ts";
+import { createRagEmbeddingModelConfig, ragConfig } from "./config.ts";
 import { ensureProjectVectorIndex, getProjectVectorStore } from "./vector-store.ts";
 
 export type RetrievedContextChunk = {
@@ -56,7 +56,7 @@ export async function retrieveProjectContext(input: {
 
   await ensureProjectVectorIndex();
 
-  const model = new ModelRouterEmbeddingModel(ragConfig.embeddingModel);
+  const model = new ModelRouterEmbeddingModel(createRagEmbeddingModelConfig());
   const { embedding } = await embed({
     model,
     value: input.query,

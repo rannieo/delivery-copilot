@@ -39,18 +39,21 @@ export async function createProjectDocument(input: {
   return row;
 }
 
-export async function deleteProjectDocument(input: {
+export async function listProjectDocumentVectorIds(input: {
   documentId: string;
-}): Promise<{ vectorIds: string[] }> {
-  const db = getDb();
-  const chunks = await db
+}): Promise<string[]> {
+  const chunks = await getDb()
     .select({ vectorId: projectDocumentChunks.vectorId })
     .from(projectDocumentChunks)
     .where(eq(projectDocumentChunks.documentId, input.documentId));
 
-  await db.delete(projectDocuments).where(eq(projectDocuments.id, input.documentId));
+  return chunks.map((chunk) => chunk.vectorId);
+}
 
-  return { vectorIds: chunks.map((chunk) => chunk.vectorId) };
+export async function deleteProjectDocument(input: {
+  documentId: string;
+}): Promise<void> {
+  await getDb().delete(projectDocuments).where(eq(projectDocuments.id, input.documentId));
 }
 
 export async function getProjectDocumentById(input: {

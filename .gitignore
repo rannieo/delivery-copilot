@@ -1,5 +1,6 @@
 output.txt
 node_modules
+.pnpm-store
 dist
 .mastra
 .env.development
@@ -11,6 +12,10 @@ dist
 .netlify
 .vercel
 workspace/
+frontend/.env*.local
+frontend/.next
+frontend/out
+frontend/tsconfig.tsbuildinfo
 src/mastra/public/mastra.db*
 src/mastra/public/mastra.duckdb*
 src/mastra/public/workspace/

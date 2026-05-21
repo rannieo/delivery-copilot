@@ -85,7 +85,7 @@ function getRoute(
   method: Method,
   path: string,
 ): { handler: (context: ReturnType<typeof createContext>) => Promise<Response> } {
-  const route = createProjectDocumentApiRoutes(deps).find(
+  const route = createProjectDocumentApiRoutes(deps, { token: "test-token" }).find(
     (candidate) => candidate.method === method && candidate.path === path,
   );
 
@@ -97,10 +97,19 @@ function createContext(input: {
   params?: Record<string, string>;
   body?: unknown;
   invalidJson?: boolean;
+  headers?: Record<string, string>;
 }) {
+  const headers = new Map(
+    Object.entries({
+      "x-delivery-copilot-token": "test-token",
+      ...input.headers,
+    }).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+
   return {
     req: {
       param: (name: string) => input.params?.[name] ?? "",
+      header: (name: string) => headers.get(name.toLowerCase()),
       json: async () => {
         if (input.invalidJson) {
           throw new Error("invalid json");
@@ -120,6 +129,52 @@ function createContext(input: {
 async function readJson(response: Response): Promise<unknown> {
   return response.json();
 }
+
+test("project document routes reject missing shared secret token", async () => {
+  const deps = createDeps();
+  const route = getRoute(deps, "GET", "/projects/:projectId/documents");
+
+  const response = await route.handler(
+    createContext({
+      params: { projectId: "project-1" },
+      headers: { "x-delivery-copilot-token": "" },
+    }),
+  );
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await readJson(response), { error: "Unauthorized" });
+});
+
+test("project document routes reject incorrect shared secret token", async () => {
+  const deps = createDeps();
+  const route = getRoute(deps, "GET", "/projects/:projectId/documents");
+
+  const response = await route.handler(
+    createContext({
+      params: { projectId: "project-1" },
+      headers: { "x-delivery-copilot-token": "wrong-token" },
+    }),
+  );
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await readJson(response), { error: "Unauthorized" });
+});
+
+test("project document routes fail closed when shared secret token is not configured", async () => {
+  const deps = createDeps();
+  const route = createProjectDocumentApiRoutes(deps, { token: undefined }).find(
+    (candidate) => candidate.method === "GET" && candidate.path === "/projects/:projectId/documents",
+  );
+
+  assert.ok(route && "handler" in route && route.handler);
+  const response = await (route as unknown as { handler: (context: ReturnType<typeof createContext>) => Promise<Response> })
+    .handler(createContext({ params: { projectId: "project-1" } }));
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(await readJson(response), {
+    error: "Project document API token is not configured",
+  });
+});
 
 test("GET /projects/:projectId/documents returns indexed documents", async () => {
   const deps = createDeps();
