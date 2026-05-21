@@ -5,6 +5,9 @@ dist
 .mastra
 .env.development
 .env
+backend/.env
+backend/.env.*
+!backend/.env.example
 *.db
 *.db-*
 *.duckdb
@@ -16,6 +19,6 @@ frontend/.env*.local
 frontend/.next
 frontend/out
 frontend/tsconfig.tsbuildinfo
-src/mastra/public/mastra.db*
-src/mastra/public/mastra.duckdb*
-src/mastra/public/workspace/
+backend/src/mastra/public/mastra.db*
+backend/src/mastra/public/mastra.duckdb*
+backend/src/mastra/public/workspace/
