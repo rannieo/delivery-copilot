@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   readModelIdFromEnv,
   validateModelIdentifier,
+  validateModelConfiguration,
   validateModelProviderCredential,
 } from "../../src/mastra/config/index.ts";
 
@@ -45,5 +46,41 @@ test("validateModelProviderCredential requires OpenAI credentials", () => {
         model: "openai/text-embedding-3-small",
       }),
     /RAG_EMBEDDING_MODEL uses openai\/text-embedding-3-small but OPENAI_API_KEY is not configured/,
+  );
+});
+
+test("validateModelConfiguration does not require embedding credentials when RAG is disabled", () => {
+  assert.doesNotThrow(() =>
+    validateModelConfiguration({
+      agentModel: "ollama-cloud/gpt-oss:120b",
+      embeddingModel: undefined,
+      ragEnabled: false,
+      env: { OLLAMA_API_KEY: "test-key" },
+    }),
+  );
+});
+
+test("validateModelConfiguration requires an embedding model when RAG is enabled", () => {
+  assert.throws(
+    () =>
+      validateModelConfiguration({
+        agentModel: "ollama-cloud/gpt-oss:120b",
+        embeddingModel: undefined,
+        ragEnabled: true,
+        env: { OLLAMA_API_KEY: "test-key" },
+      }),
+    /RAG_ENABLED is true but RAG_EMBEDDING_MODEL is not configured/,
+  );
+});
+
+test("validateModelConfiguration allows local Ollama-compatible embeddings without OpenAI credentials", () => {
+  assert.doesNotThrow(() =>
+    validateModelConfiguration({
+      agentModel: "ollama-cloud/gpt-oss:120b",
+      embeddingModel: "ollama/nomic-embed-text",
+      embeddingBaseUrl: "http://localhost:11434/v1",
+      ragEnabled: true,
+      env: { OLLAMA_API_KEY: "test-key" },
+    }),
   );
 });

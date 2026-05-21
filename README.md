@@ -56,6 +56,7 @@ Each specialist agent produces a structured response. The Markdown artifact live
 | `src/mastra/tools/` | Agent tools retained for context retrieval and related workflow support. |
 | `src/db/` | Drizzle schema, migrations, and repositories for business data. |
 | `database/init/` | Postgres container init scripts, including `pgvector` extension setup. |
+| `frontend/` | Demo Next.js App Router frontend with shadcn/ui and server-side Mastra API proxies. |
 | `tests/` | Node test-runner coverage for structured output, RAG helpers, and API route behavior. |
 
 ## Requirements
@@ -63,7 +64,7 @@ Each specialist agent produces a structured response. The Markdown artifact live
 - Node.js `>=22.13.0`
 - `pnpm`
 - PostgreSQL with `pgvector`
-- Model provider key(s) for the configured agent and embedding models, for example `OLLAMA_API_KEY` and `OPENAI_API_KEY`
+- Model provider key(s) for the configured models. The default agent model uses `OLLAMA_API_KEY`.
 
 The local Docker Postgres service uses `postgres:16-alpine` and runs `database/init/001-pgvector.sql` on first database initialization.
 
@@ -83,12 +84,13 @@ Important settings:
 | `PROJECT_DOCUMENT_API_TOKEN` | Shared secret required by the custom project-document API routes. Send it as `x-delivery-copilot-token`. |
 | `AGENT_MODEL` | Agent model routed through Mastra model router. Defaults to `ollama-cloud/gpt-oss:120b`. |
 | `OLLAMA_API_KEY` | Required when `AGENT_MODEL` uses `ollama-cloud/*`. |
-| `OPENAI_API_KEY` | Required when `RAG_EMBEDDING_MODEL` uses `openai/*`. |
+| `OPENAI_API_KEY` | Optional. Required only when `RAG_EMBEDDING_MODEL` uses `openai/*`. |
 | `MASTRA_STORAGE_DRIVER` | `postgres` by default. Use `libsql` only for local Mastra state experiments. |
 | `WORKSPACE_BASE_PATH` | Local artifact workspace path when `MASTRA_FILESYSTEM_DRIVER=local`. |
-| `RAG_ENABLED` | Enables workflow prompt retrieval and project document search. |
+| `RAG_ENABLED` | Enables workflow prompt retrieval and project document search. Defaults off unless `RAG_EMBEDDING_MODEL` is set. |
 | `RAG_VECTOR_INDEX` | PgVector index/table name for document chunks. |
-| `RAG_EMBEDDING_MODEL` | Embedding model routed through Mastra model router. |
+| `RAG_EMBEDDING_MODEL` | Embedding model routed through Mastra model router or an OpenAI-compatible endpoint. |
+| `RAG_EMBEDDING_BASE_URL` | Optional OpenAI-compatible embedding base URL, for example local Ollama at `http://localhost:11434/v1`. |
 | `FRONTEND_ORIGIN` | CORS origin for the frontend app. |
 
 ## Getting Started
@@ -102,6 +104,16 @@ pnpm dev
 
 Open [http://localhost:4111](http://localhost:4111) for Mastra Studio.
 
+For the demo frontend:
+
+```sh
+cp frontend/.env.example frontend/.env.local
+pnpm --dir frontend install
+pnpm --dir frontend dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to the backend `.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
+
 ## Scripts
 
 | Command | What it does |
@@ -112,19 +124,36 @@ Open [http://localhost:4111](http://localhost:4111) for Mastra Studio.
 | `pnpm db:generate` | Generate a Drizzle migration from `src/db/schema.ts`. |
 | `pnpm db:migrate` | Apply pending migrations to `DATABASE_URL`. |
 | `pnpm db:studio` | Open Drizzle Studio against `DATABASE_URL`. |
+| `pnpm --dir frontend dev` | Start the demo Next.js app at `localhost:3000`. |
+| `pnpm --dir frontend build` | Build the demo frontend. |
 
 ## Frontend API Surface
 
-Custom routes are registered through Mastra and exposed under the server API prefix. With the default prefix, these are:
+Custom routes are registered through Mastra at these backend paths:
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/projects/:projectId/documents` | List indexed project documents. |
-| `POST` | `/api/projects/:projectId/documents` | Ingest and index a project document. |
-| `DELETE` | `/api/projects/:projectId/documents/:documentId` | Delete document metadata and remove its vector chunks. |
-| `POST` | `/api/projects/:projectId/context/search` | Retrieve source-labeled RAG context for a query. |
+| `POST` | `/demo/workflow/run` | Run `deliveryCopilotWorkflow` from the demo frontend. |
+| `GET` | `/projects/:projectId/documents` | List indexed project documents. |
+| `POST` | `/projects/:projectId/documents` | Ingest and index a project document. |
+| `DELETE` | `/projects/:projectId/documents/:documentId` | Delete document metadata and remove its vector chunks. |
+| `POST` | `/projects/:projectId/context/search` | Retrieve source-labeled RAG context for a query. |
 
-All custom project-document routes require the `x-delivery-copilot-token` header to match `PROJECT_DOCUMENT_API_TOKEN`. If the server token is missing, these routes fail closed with `503`.
+The Next.js demo keeps browser-facing routes under `/api/*` and proxies them server-side to these Mastra paths.
+
+All custom demo routes require the `x-delivery-copilot-token` header to match `PROJECT_DOCUMENT_API_TOKEN`. If the server token is missing, these routes fail closed with `503`.
+
+Example workflow payload:
+
+```json
+{
+  "projectName": "QueueLite",
+  "projectDescription": "Queue management for small restaurants.",
+  "rawInput": "# QueueLite\nCustomers scan QR codes to join the queue.",
+  "planTitle": "QueueLite delivery plan",
+  "useRag": false
+}
+```
 
 Example document ingestion payload:
 
@@ -155,6 +184,15 @@ x-delivery-copilot-token: change-me-in-production
 ```
 
 ## RAG Flow
+
+RAG is disabled by default for Ollama-only local runs. To use local Ollama embeddings, pull an embedding model such as `nomic-embed-text` and set:
+
+```sh
+RAG_ENABLED=true
+RAG_EMBEDDING_MODEL=ollama/nomic-embed-text
+RAG_EMBEDDING_BASE_URL=http://localhost:11434/v1
+RAG_EMBEDDING_DIMENSION=768
+```
 
 Document ingestion:
 

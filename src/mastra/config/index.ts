@@ -2,6 +2,7 @@ const DEFAULT_AGENT_MODEL = "ollama-cloud/gpt-oss:120b";
 
 const MODEL_PROVIDER_CREDENTIALS: Record<string, string> = {
   "ollama-cloud": "OLLAMA_API_KEY",
+  google: "GOOGLE_API_KEY",
   openai: "OPENAI_API_KEY",
 };
 
@@ -30,8 +31,13 @@ export function validateModelProviderCredential(input: {
   env?: EnvLike;
   envName: string;
   model: string;
+  skipCredential?: boolean;
 }): void {
   validateModelIdentifier(input.model, input.envName);
+
+  if (input.skipCredential) {
+    return;
+  }
 
   const provider = input.model.split("/")[0]!;
   const credentialName = MODEL_PROVIDER_CREDENTIALS[provider];
@@ -49,7 +55,9 @@ export function validateModelProviderCredential(input: {
 
 export function validateModelConfiguration(input: {
   agentModel: string;
-  embeddingModel: string;
+  embeddingModel?: string;
+  embeddingBaseUrl?: string;
+  ragEnabled?: boolean;
   env?: EnvLike;
 }): void {
   validateModelProviderCredential({
@@ -57,10 +65,20 @@ export function validateModelConfiguration(input: {
     envName: "AGENT_MODEL",
     model: input.agentModel,
   });
+
+  if (!input.ragEnabled) {
+    return;
+  }
+
+  if (!input.embeddingModel) {
+    throw new Error("RAG_ENABLED is true but RAG_EMBEDDING_MODEL is not configured");
+  }
+
   validateModelProviderCredential({
     env: input.env,
     envName: "RAG_EMBEDDING_MODEL",
     model: input.embeddingModel,
+    skipCredential: Boolean(input.embeddingBaseUrl),
   });
 }
 

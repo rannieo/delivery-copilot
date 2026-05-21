@@ -3,7 +3,11 @@ import { ModelRouterEmbeddingModel } from "@mastra/core/llm";
 import { MDocument } from "@mastra/rag";
 import { embedMany } from "ai";
 import type { ProjectDocument } from "../../db/repositories/project-document-repository.ts";
-import { ragConfig, type ProjectDocumentSourceType } from "./config.ts";
+import {
+  createRagEmbeddingModelConfig,
+  ragConfig,
+  type ProjectDocumentSourceType,
+} from "./config.ts";
 import { ensureProjectVectorIndex, getProjectVectorStore } from "./vector-store.ts";
 
 export type ProjectDocumentChunkMetadata = {
@@ -96,7 +100,7 @@ export async function chunkDocumentText(text: string): Promise<string[]> {
 }
 
 async function embedDocumentChunks(chunks: string[]): Promise<number[][]> {
-  const model = new ModelRouterEmbeddingModel(ragConfig.embeddingModel);
+  const model = new ModelRouterEmbeddingModel(createRagEmbeddingModelConfig());
   const { embeddings } = await embedMany({
     model,
     values: chunks,

@@ -19,11 +19,14 @@ import { defaultAgentModel, validateModelConfiguration } from './config/index.ts
 import { ragConfig } from './rag/config.ts';
 import { mastraStorage } from './storage.ts';
 import { mastraWorkspace } from './workspace.ts';
+import { demoWorkflowApiRoutes } from './api/demo-workflow-routes.ts';
 import { projectDocumentApiRoutes } from './api/project-documents-routes.ts';
 
 validateModelConfiguration({
   agentModel: defaultAgentModel,
   embeddingModel: ragConfig.embeddingModel,
+  embeddingBaseUrl: ragConfig.embeddingBaseUrl,
+  ragEnabled: ragConfig.enabled,
 });
 
 export const mastra = new Mastra({
@@ -35,7 +38,7 @@ export const mastra = new Mastra({
       exposeHeaders: ["Content-Length", "X-Requested-With"],
       credentials: true,
     },
-    apiRoutes: projectDocumentApiRoutes,
+    apiRoutes: [...projectDocumentApiRoutes, ...demoWorkflowApiRoutes],
   },
   workflows: {
     deliveryCopilotWorkflow
