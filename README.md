@@ -114,10 +114,17 @@ pnpm --dir frontend dev
 
 Open [http://localhost:3000](http://localhost:3000). Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to the backend `.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
 
+To start both dev servers from the repo root:
+
+```sh
+make dev
+```
+
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
+| `make dev` | Start both dev servers: Mastra Studio at `localhost:4111` and the frontend at `localhost:3000`. |
 | `pnpm --dir backend dev` | Start Mastra Studio at `localhost:4111`. |
 | `pnpm --dir backend build` | Build a production-ready Mastra server bundle. |
 | `pnpm --dir backend start` | Run the built server. |

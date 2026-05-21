@@ -1,10 +1,11 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev-backend dev-frontend docker-config test typecheck dev-test build
+.PHONY: help install dev dev-backend dev-frontend docker-config test typecheck dev-test build
 
 help:
 	@echo "Available targets:"
 	@echo "  make install       Install backend and frontend dependencies"
+	@echo "  make dev           Start backend and frontend dev servers"
 	@echo "  make dev-backend   Start Mastra Studio at localhost:4111"
 	@echo "  make dev-frontend  Start the Next.js frontend at localhost:3000"
 	@echo "  make docker-config Validate docker-compose.yml"
@@ -16,6 +17,12 @@ help:
 install:
 	pnpm --dir backend install
 	pnpm --dir frontend install
+
+dev:
+	@trap 'kill $$backend_pid $$frontend_pid 2>/dev/null' INT TERM EXIT; \
+	pnpm --dir backend dev & backend_pid=$$!; \
+	pnpm --dir frontend dev & frontend_pid=$$!; \
+	wait $$backend_pid $$frontend_pid
 
 dev-backend:
 	pnpm --dir backend dev

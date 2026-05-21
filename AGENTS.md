@@ -14,6 +14,7 @@ This is a **Mastra** project written in TypeScript. Mastra is a framework for bu
 ## Commands
 
 ```bash
+make dev # Start backend and frontend dev servers
 make dev-test # Run local dev verification
 pnpm --dir backend dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
 pnpm --dir backend build # Build a production-ready server
