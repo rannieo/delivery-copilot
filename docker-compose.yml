@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - delivery_copilot_pgdata:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./backend/database/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U delivery_user -d delivery_copilot"]
       interval: 10s

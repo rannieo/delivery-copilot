@@ -47,17 +47,17 @@ Each specialist agent produces a structured response. The Markdown artifact live
 
 | Path | Purpose |
 | --- | --- |
-| `src/mastra/index.ts` | Mastra entry point. Registers workflow, agents, storage, observability, workspace, CORS, and custom API routes. |
-| `src/mastra/agents/` | Specialist Mastra agents. |
-| `src/mastra/shared/prompts/` | Role prompts and artifact templates. |
-| `src/mastra/workflows/` | `deliveryCopilotWorkflow` and step wrappers. |
-| `src/mastra/rag/` | RAG config, document chunking/embedding, vector storage, retrieval rendering. |
-| `src/mastra/api/` | Custom Mastra API routes used by the frontend backend surface. |
-| `src/mastra/tools/` | Agent tools retained for context retrieval and related workflow support. |
-| `src/db/` | Drizzle schema, migrations, and repositories for business data. |
-| `database/init/` | Postgres container init scripts, including `pgvector` extension setup. |
+| `backend/src/mastra/index.ts` | Mastra entry point. Registers workflow, agents, storage, observability, workspace, CORS, and custom API routes. |
+| `backend/src/mastra/agents/` | Specialist Mastra agents. |
+| `backend/src/mastra/shared/prompts/` | Role prompts and artifact templates. |
+| `backend/src/mastra/workflows/` | `deliveryCopilotWorkflow` and step wrappers. |
+| `backend/src/mastra/rag/` | RAG config, document chunking/embedding, vector storage, retrieval rendering. |
+| `backend/src/mastra/api/` | Custom Mastra API routes used by the frontend backend surface. |
+| `backend/src/mastra/tools/` | Agent tools retained for context retrieval and related workflow support. |
+| `backend/src/db/` | Drizzle schema, migrations, and repositories for business data. |
+| `backend/database/init/` | Postgres container init scripts, including `pgvector` extension setup. |
 | `frontend/` | Demo Next.js App Router frontend with shadcn/ui and server-side Mastra API proxies. |
-| `tests/` | Node test-runner coverage for structured output, RAG helpers, and API route behavior. |
+| `backend/tests/` | Node test-runner coverage for structured output, RAG helpers, and API route behavior. |
 
 ## Requirements
 
@@ -66,14 +66,14 @@ Each specialist agent produces a structured response. The Markdown artifact live
 - PostgreSQL with `pgvector`
 - Model provider key(s) for the configured models. The default agent model uses `OLLAMA_API_KEY`.
 
-The local Docker Postgres service uses `postgres:16-alpine` and runs `database/init/001-pgvector.sql` on first database initialization.
+The local Docker Postgres service uses `postgres:16-alpine` and runs `backend/database/init/001-pgvector.sql` on first database initialization.
 
 ## Environment
 
 Copy the sample environment file:
 
 ```sh
-cp .env.example .env
+cp backend/.env.example backend/.env
 ```
 
 Important settings:
@@ -96,10 +96,10 @@ Important settings:
 ## Getting Started
 
 ```sh
-pnpm install
+pnpm --dir backend install
 docker compose up -d postgres
-pnpm db:migrate
-pnpm dev
+pnpm --dir backend db:migrate
+pnpm --dir backend dev
 ```
 
 Open [http://localhost:4111](http://localhost:4111) for Mastra Studio.
@@ -114,18 +114,29 @@ pnpm --dir frontend dev
 
 Open [http://localhost:3000](http://localhost:3000). Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to the backend `.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
 
+To start both dev servers from the repo root:
+
+```sh
+make dev
+```
+
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Start Mastra Studio at `localhost:4111`. |
-| `pnpm build` | Build a production-ready Mastra server bundle. |
-| `pnpm start` | Run the built server. |
-| `pnpm db:generate` | Generate a Drizzle migration from `src/db/schema.ts`. |
-| `pnpm db:migrate` | Apply pending migrations to `DATABASE_URL`. |
-| `pnpm db:studio` | Open Drizzle Studio against `DATABASE_URL`. |
+| `make dev` | Start both dev servers: Mastra Studio at `localhost:4111` and the frontend at `localhost:3000`. |
+| `pnpm --dir backend dev` | Start Mastra Studio at `localhost:4111`. |
+| `pnpm --dir backend build` | Build a production-ready Mastra server bundle. |
+| `pnpm --dir backend start` | Run the built server. |
+| `pnpm --dir backend test` | Run backend tests. |
+| `pnpm --dir backend db:generate` | Generate a Drizzle migration from `backend/src/db/schema.ts`. |
+| `pnpm --dir backend db:migrate` | Apply pending migrations to `DATABASE_URL`. |
+| `pnpm --dir backend db:studio` | Open Drizzle Studio against `DATABASE_URL`. |
 | `pnpm --dir frontend dev` | Start the demo Next.js app at `localhost:3000`. |
 | `pnpm --dir frontend build` | Build the demo frontend. |
+| `make dev-test` | Run local dev verification: Docker Compose config, backend tests, backend typecheck, and frontend typecheck. |
+| `make dev-backend` | Start Mastra Studio from the repo root. |
+| `make dev-frontend` | Start the frontend from the repo root. |
 
 ## Frontend API Surface
 
@@ -223,6 +234,7 @@ Workflow retrieval:
 Focused tests:
 
 ```sh
+cd backend
 node --experimental-strip-types --test \
   tests/api/project-document-routes.test.ts \
   tests/rag/document-service.test.ts \
@@ -234,16 +246,16 @@ node --experimental-strip-types --test \
 Typecheck and build:
 
 ```sh
-pnpm exec tsc --noEmit
-pnpm build
+pnpm --dir backend exec tsc --noEmit
+pnpm --dir backend build
 ```
 
 ## Notes for Contributors
 
 - Use `pnpm`; do not introduce `package-lock.json`.
-- Run `pnpm db:generate` after changing `src/db/schema.ts`.
+- Run `pnpm --dir backend db:generate` after changing `backend/src/db/schema.ts`.
 - Keep agent outputs structured: the role-specific Markdown document belongs in the `markdown` field.
-- Keep frontend-facing API route registration thin; put route handlers, schemas, dependency wiring, and HTTP helpers under `src/mastra/api/project-documents/`.
+- Keep frontend-facing API route registration thin; put route handlers, schemas, dependency wiring, and HTTP helpers under `backend/src/mastra/api/project-documents/`.
 - Before exposing custom API routes outside local/dev use, add authentication and authorization.
 
 ## Learn More

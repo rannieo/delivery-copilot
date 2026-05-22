@@ -5,7 +5,7 @@ You are a TypeScript developer experienced with the Mastra framework. You build 
 
 ## CRITICAL: Load `mastra` skill
 
-**BEFORE doing ANYTHING with Mastra, load the `mastra` skill FIRST.** Never rely on cached knowledge as Mastra's APIs change frequently between versions. Use the skill to read up-to-date documentation from `node_modules`.
+**BEFORE doing ANYTHING with Mastra, load the `mastra` skill FIRST.** Never rely on cached knowledge as Mastra's APIs change frequently between versions. Use the skill to read up-to-date documentation from `backend/node_modules`.
 
 ## Project Overview
 
@@ -14,23 +14,26 @@ This is a **Mastra** project written in TypeScript. Mastra is a framework for bu
 ## Commands
 
 ```bash
-pnpm dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
-pnpm build # Build a production-ready server
+make dev # Start backend and frontend dev servers
+make dev-test # Run local dev verification
+pnpm --dir backend dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
+pnpm --dir backend build # Build a production-ready server
 ```
 
-This project uses **pnpm** (lockfile: `pnpm-lock.yaml`). Do not run `npm install` — it will create a parallel `package-lock.json` and break the lockfile contract.
+This project uses **pnpm** with separate backend and frontend lockfiles. Do not run `npm install` — it will create parallel `package-lock.json` files and break the lockfile contract.
 
 ## Project Structure
 
 | Folder                 | Description                                                                                                                              |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/mastra`           | Entry point for all Mastra-related code and configuration.                                                                               |
-| `src/mastra/agents`    | Define and configure your agents - their behavior, goals, and tools.                                                                     |
-| `src/mastra/workflows` | Define multi-step workflows that orchestrate agents and tools together.                                                                  |
-| `src/mastra/tools`     | Create reusable tools that your agents can call                                                                                          |
-| `src/mastra/mcp`       | (Optional) Implement custom MCP servers to share your tools with external agents                                                         |
-| `src/mastra/scorers`   | (Optional) Define scorers for evaluating agent performance over time                                                                     |
-| `src/mastra/public`    | (Optional) Contents are copied into the `.build/output` directory during the build process, making them available for serving at runtime |
+| `backend/src/mastra`           | Entry point for all Mastra-related code and configuration.                                                                               |
+| `backend/src/mastra/agents`    | Define and configure your agents - their behavior, goals, and tools.                                                                     |
+| `backend/src/mastra/workflows` | Define multi-step workflows that orchestrate agents and tools together.                                                                  |
+| `backend/src/mastra/tools`     | Create reusable tools that your agents can call                                                                                          |
+| `backend/src/mastra/mcp`       | (Optional) Implement custom MCP servers to share your tools with external agents                                                         |
+| `backend/src/mastra/scorers`   | (Optional) Define scorers for evaluating agent performance over time                                                                     |
+| `backend/src/mastra/public`    | (Optional) Contents are copied into the `.build/output` directory during the build process, making them available for serving at runtime |
+| `frontend`             | Next.js demo app that proxies to the Mastra backend.                                                                                      |
 
 ### Top-level files
 
@@ -38,19 +41,22 @@ Top-level files define how your Mastra project is configured, built, and connect
 
 | File                  | Description                                                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `src/mastra/index.ts` | Central entry point where you configure and initialize Mastra.                                                    |
-| `.env.example`        | Template for environment variables - copy and rename to `.env` to add your secret [model provider](/models) keys. |
-| `package.json`        | Defines project metadata, dependencies, and available npm scripts.                                                |
-| `tsconfig.json`       | Configures TypeScript options such as path aliases, compiler settings, and build output.                          |
+| `backend/src/mastra/index.ts` | Central entry point where you configure and initialize Mastra.                                                    |
+| `backend/.env.example`        | Backend environment template. Copy to `backend/.env` and add secret [model provider](/models) keys. |
+| `backend/package.json`        | Backend project metadata, dependencies, and available npm scripts.                                                |
+| `backend/tsconfig.json`       | Backend TypeScript options such as path aliases, compiler settings, and build output.                          |
+| `frontend/.env.example`       | Frontend environment template. Copy to `frontend/.env.local`. |
+| `Makefile`                    | Root shortcuts for local development and verification. |
 
 ## Boundaries
 
 ### Always do
 
 - Load the `mastra` skill before any Mastra-related work
-- Register new agents, tools, workflows, and scorers in `src/mastra/index.ts`
+- Register new agents, tools, workflows, and scorers in `backend/src/mastra/index.ts`
 - Use schemas for tool inputs and outputs
-- Run `pnpm build` to verify changes compile
+- Run `make dev-test` for local verification while developing
+- Run `pnpm --dir backend build` to verify backend changes compile
 
 ### Never do
 
