@@ -9,6 +9,7 @@ test("readRagConfig disables RAG by default when no embedding model is configure
   const config = readRagConfig({});
 
   assert.equal(config.enabled, false);
+  assert.equal(config.indexName, "project_document_vectors");
   assert.equal(config.embeddingModel, undefined);
 });
 

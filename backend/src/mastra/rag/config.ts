@@ -41,7 +41,7 @@ export function readRagConfig(env: EnvLike = process.env) {
 
   return {
     enabled: readBoolean(env.RAG_ENABLED, Boolean(embeddingModel)),
-    indexName: env.RAG_VECTOR_INDEX ?? "project_documents",
+    indexName: env.RAG_VECTOR_INDEX ?? "project_document_vectors",
     embeddingModel,
     embeddingBaseUrl: normalizeBaseUrl(env.RAG_EMBEDDING_BASE_URL),
     embeddingApiKey: readOptionalString(env.RAG_EMBEDDING_API_KEY),

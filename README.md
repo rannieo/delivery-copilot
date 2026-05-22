@@ -58,6 +58,8 @@ Each specialist agent produces a structured response. The Markdown artifact live
 | `backend/database/init/` | Postgres container init scripts, including `pgvector` extension setup. |
 | `frontend/` | Demo Next.js App Router frontend with shadcn/ui and server-side Mastra API proxies. |
 | `backend/tests/` | Node test-runner coverage for structured output, RAG helpers, and API route behavior. |
+| `docs/` | Project plans and supporting documentation. |
+| `Makefile` | Root development shortcuts for install, dev servers, tests, typechecks, and builds. |
 
 ## Requirements
 
@@ -70,11 +72,14 @@ The local Docker Postgres service uses `postgres:16-alpine` and runs `backend/da
 
 ## Environment
 
-Copy the sample environment file:
+Copy the sample environment files:
 
 ```sh
 cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
 ```
+
+Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to `backend/.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
 
 Important settings:
 
@@ -91,40 +96,30 @@ Important settings:
 | `RAG_VECTOR_INDEX` | PgVector index/table name for document chunks. |
 | `RAG_EMBEDDING_MODEL` | Embedding model routed through Mastra model router or an OpenAI-compatible endpoint. |
 | `RAG_EMBEDDING_BASE_URL` | Optional OpenAI-compatible embedding base URL, for example local Ollama at `http://localhost:11434/v1`. |
+| `RAG_EMBEDDING_API_KEY` | Optional key for custom OpenAI-compatible embedding endpoints. |
 | `FRONTEND_ORIGIN` | CORS origin for the frontend app. |
 
 ## Getting Started
 
 ```sh
-pnpm --dir backend install
+make install
 docker compose up -d postgres
 pnpm --dir backend db:migrate
-pnpm --dir backend dev
-```
-
-Open [http://localhost:4111](http://localhost:4111) for Mastra Studio.
-
-For the demo frontend:
-
-```sh
-cp frontend/.env.example frontend/.env.local
-pnpm --dir frontend install
-pnpm --dir frontend dev
-```
-
-Open [http://localhost:3000](http://localhost:3000). Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to the backend `.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
-
-To start both dev servers from the repo root:
-
-```sh
 make dev
 ```
+
+Open [http://localhost:4111](http://localhost:4111) for Mastra Studio and [http://localhost:3000](http://localhost:3000) for the frontend.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
+| `make install` | Install backend and frontend dependencies. |
 | `make dev` | Start both dev servers: Mastra Studio at `localhost:4111` and the frontend at `localhost:3000`. |
+| `make dev-test` | Run local dev verification: Docker Compose config, backend tests, backend typecheck, and frontend typecheck. |
+| `make build` | Build backend and frontend. |
+| `make dev-backend` | Start Mastra Studio from the repo root. |
+| `make dev-frontend` | Start the frontend from the repo root. |
 | `pnpm --dir backend dev` | Start Mastra Studio at `localhost:4111`. |
 | `pnpm --dir backend build` | Build a production-ready Mastra server bundle. |
 | `pnpm --dir backend start` | Run the built server. |
@@ -134,9 +129,6 @@ make dev
 | `pnpm --dir backend db:studio` | Open Drizzle Studio against `DATABASE_URL`. |
 | `pnpm --dir frontend dev` | Start the demo Next.js app at `localhost:3000`. |
 | `pnpm --dir frontend build` | Build the demo frontend. |
-| `make dev-test` | Run local dev verification: Docker Compose config, backend tests, backend typecheck, and frontend typecheck. |
-| `make dev-backend` | Start Mastra Studio from the repo root. |
-| `make dev-frontend` | Start the frontend from the repo root. |
 
 ## Frontend API Surface
 
@@ -196,10 +188,21 @@ x-delivery-copilot-token: change-me-in-production
 
 ## RAG Flow
 
-RAG is disabled by default for Ollama-only local runs. To use local Ollama embeddings, pull an embedding model such as `nomic-embed-text` and set:
+RAG is disabled by default. Local Ollama is not required; the backend already embeds chunks through Mastra's model router and the AI SDK. For hosted OpenAI embeddings, set:
+
+```sh
+OPENAI_API_KEY=your-openai-api-key
+RAG_ENABLED=true
+RAG_VECTOR_INDEX=project_document_vectors
+RAG_EMBEDDING_MODEL=openai/text-embedding-3-small
+RAG_EMBEDDING_DIMENSION=1536
+```
+
+For a local or custom OpenAI-compatible embedding endpoint, set the provider/model plus the endpoint URL:
 
 ```sh
 RAG_ENABLED=true
+RAG_VECTOR_INDEX=project_document_vectors
 RAG_EMBEDDING_MODEL=ollama/nomic-embed-text
 RAG_EMBEDDING_BASE_URL=http://localhost:11434/v1
 RAG_EMBEDDING_DIMENSION=768
@@ -231,6 +234,12 @@ Workflow retrieval:
 
 ## Verification
 
+Run the standard local verification from the repo root:
+
+```sh
+make dev-test
+```
+
 Focused tests:
 
 ```sh
@@ -247,7 +256,7 @@ Typecheck and build:
 
 ```sh
 pnpm --dir backend exec tsc --noEmit
-pnpm --dir backend build
+make build
 ```
 
 ## Notes for Contributors

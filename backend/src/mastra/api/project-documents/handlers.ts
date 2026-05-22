@@ -3,6 +3,12 @@ import type { ProjectDocumentRouteContext } from "./http.ts";
 import { flattenZodError, readJsonBody } from "./http.ts";
 import { CreateProjectDocumentSchema, SearchProjectContextSchema } from "./schemas.ts";
 
+function stringifyError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return "Unknown document indexing error";
+}
+
 export async function listProjectDocumentsHandler(
   deps: ProjectDocumentApiRouteDeps,
   c: ProjectDocumentRouteContext,
@@ -34,12 +40,28 @@ export async function createProjectDocumentHandler(
     return c.json({ error: flattenZodError(parsed.error) }, 400);
   }
 
-  const document = await deps.ingestProjectDocument({
-    projectId,
-    sourceName: parsed.data.sourceName,
-    sourceType: parsed.data.sourceType,
-    content: parsed.data.content,
-  });
+  let document;
+  try {
+    document = await deps.ingestProjectDocument({
+      projectId,
+      sourceName: parsed.data.sourceName,
+      sourceType: parsed.data.sourceType,
+      content: parsed.data.content,
+    });
+  } catch (error) {
+    const message = stringifyError(error);
+    if (message === "Project RAG is disabled") {
+      return c.json(
+        {
+          error:
+            "Project RAG is disabled. Configure RAG_EMBEDDING_MODEL and set RAG_ENABLED=true before indexing documents.",
+        },
+        503,
+      );
+    }
+
+    return c.json({ error: `Document indexing failed: ${message}` }, 500);
+  }
 
   const storedDocument = await deps.getProjectDocumentById({ documentId: document.id });
   return c.json({ document: storedDocument ?? document }, 201);
