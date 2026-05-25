@@ -1,4 +1,18 @@
-const DEFAULT_AGENT_MODEL = "ollama-cloud/gpt-oss:120b";
+const PROVIDER_DEFAULT_MODELS: Record<string, string> = {
+  "ollama-cloud": "ollama-cloud/gpt-oss:120b",
+  openai: "openai/gpt-4.1",
+  google: "google/gemini-2.5-flash",
+};
+
+const PROVIDER_ALIASES: Record<string, string> = {
+  ollama: "ollama-cloud",
+  "ollama-cloud": "ollama-cloud",
+  openai: "openai",
+  google: "google",
+  gemini: "google",
+};
+
+const FALLBACK_PROVIDER = "ollama-cloud";
 
 const MODEL_PROVIDER_CREDENTIALS: Record<string, string> = {
   "ollama-cloud": "OLLAMA_API_KEY",
@@ -7,6 +21,30 @@ const MODEL_PROVIDER_CREDENTIALS: Record<string, string> = {
 };
 
 type EnvLike = Record<string, string | undefined>;
+
+function resolveProvider(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return undefined;
+  const provider = PROVIDER_ALIASES[normalized];
+  if (!provider) {
+    const allowed = Object.keys(PROVIDER_ALIASES).join(", ");
+    throw new Error(`MODEL_PROVIDER must be one of: ${allowed}; received "${value}"`);
+  }
+  return provider;
+}
+
+export function resolveDefaultAgentModel(env: EnvLike = process.env): string {
+  const explicit = env.AGENT_MODEL?.trim();
+  if (explicit) return explicit;
+
+  const provider = resolveProvider(env.MODEL_PROVIDER) ?? FALLBACK_PROVIDER;
+  const model = PROVIDER_DEFAULT_MODELS[provider];
+  if (!model) {
+    throw new Error(`No default model registered for provider "${provider}"`);
+  }
+  return model;
+}
 
 export function validateModelIdentifier(model: string, envName: string): void {
   const [provider, ...modelParts] = model.split("/");
@@ -84,7 +122,7 @@ export function validateModelConfiguration(input: {
 
 export const defaultAgentModel = readModelIdFromEnv({
   envName: "AGENT_MODEL",
-  fallback: DEFAULT_AGENT_MODEL,
+  fallback: resolveDefaultAgentModel(),
 });
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 8000;

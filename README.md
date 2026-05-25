@@ -58,23 +58,28 @@ Each specialist agent produces a structured response. The Markdown artifact live
 | `backend/database/init/` | Postgres container init scripts, including `pgvector` extension setup. |
 | `frontend/` | Demo Next.js App Router frontend with shadcn/ui and server-side Mastra API proxies. |
 | `backend/tests/` | Node test-runner coverage for structured output, RAG helpers, and API route behavior. |
+| `docs/` | Project plans and supporting documentation. |
+| `Makefile` | Root development shortcuts for install, dev servers, tests, typechecks, and builds. |
 
 ## Requirements
 
 - Node.js `>=22.13.0`
 - `pnpm`
 - PostgreSQL with `pgvector`
-- Model provider key(s) for the configured models. The default agent model uses `OLLAMA_API_KEY`.
+- Model provider key(s) for the configured provider. The default `MODEL_PROVIDER=ollama` requires `OLLAMA_API_KEY`; switch to `openai` to use `OPENAI_API_KEY` instead.
 
-The local Docker Postgres service uses `postgres:16-alpine` and runs `backend/database/init/001-pgvector.sql` on first database initialization.
+The local Docker Postgres service uses `pgvector/pgvector:0.8.2-pg16-trixie` and runs `backend/database/init/001-pgvector.sql` on first database initialization. If you already created the local database with the plain `postgres:16-alpine` image, recreate the container after pulling the new image, then run `CREATE EXTENSION IF NOT EXISTS vector;` in the existing database or reinitialize the volume.
 
 ## Environment
 
-Copy the sample environment file:
+Copy the sample environment files:
 
 ```sh
 cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
 ```
+
+Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to `backend/.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
 
 Important settings:
 
@@ -82,49 +87,73 @@ Important settings:
 | --- | --- |
 | `DATABASE_URL` | Required for Drizzle and Postgres-backed Mastra storage. |
 | `PROJECT_DOCUMENT_API_TOKEN` | Shared secret required by the custom project-document API routes. Send it as `x-delivery-copilot-token`. |
-| `AGENT_MODEL` | Agent model routed through Mastra model router. Defaults to `ollama-cloud/gpt-oss:120b`. |
-| `OLLAMA_API_KEY` | Required when `AGENT_MODEL` uses `ollama-cloud/*`. |
-| `OPENAI_API_KEY` | Optional. Required only when `RAG_EMBEDDING_MODEL` uses `openai/*`. |
+| `MODEL_PROVIDER` | Primary model provider. One of `ollama`, `openai`, `google`. Picks a provider-specific default model. Defaults to `ollama`. |
+| `AGENT_MODEL` | Optional exact model id (`provider/model-name`). Overrides `MODEL_PROVIDER` when set. Leave empty to use the provider default. |
+| `OLLAMA_API_KEY` | Required when the resolved agent model uses `ollama-cloud/*`. |
+| `OPENAI_API_KEY` | Required when the resolved agent model or `RAG_EMBEDDING_MODEL` uses `openai/*`. |
+| `GOOGLE_API_KEY` | Required when the resolved agent model uses `google/*`. |
 | `MASTRA_STORAGE_DRIVER` | `postgres` by default. Use `libsql` only for local Mastra state experiments. |
 | `WORKSPACE_BASE_PATH` | Local artifact workspace path when `MASTRA_FILESYSTEM_DRIVER=local`. |
 | `RAG_ENABLED` | Enables workflow prompt retrieval and project document search. Defaults off unless `RAG_EMBEDDING_MODEL` is set. |
 | `RAG_VECTOR_INDEX` | PgVector index/table name for document chunks. |
+| `RAG_EMBEDDING_DRIVER` | Embedding adapter. Use `mastra` by default or `langchain-openai` for LangChain OpenAI embeddings. |
 | `RAG_EMBEDDING_MODEL` | Embedding model routed through Mastra model router or an OpenAI-compatible endpoint. |
 | `RAG_EMBEDDING_BASE_URL` | Optional OpenAI-compatible embedding base URL, for example local Ollama at `http://localhost:11434/v1`. |
+| `RAG_EMBEDDING_API_KEY` | Optional key for custom OpenAI-compatible embedding endpoints. |
 | `FRONTEND_ORIGIN` | CORS origin for the frontend app. |
+
+Frontend (`frontend/.env.local`):
+
+| Variable | Purpose |
+| --- | --- |
+| `MASTRA_API_BASE_URL` | Base URL the Next.js server-side routes proxy to. Defaults to `http://localhost:4111`. |
+| `PROJECT_DOCUMENT_API_TOKEN` | Must match the backend value. Attached server-side as `x-delivery-copilot-token`. Never exposed to the browser. |
+
+## Choosing a Model Provider
+
+All agents share one model, picked from `backend/.env`. Two knobs:
+
+```sh
+# Option A — pick a provider, get its default model
+MODEL_PROVIDER=openai      # or: ollama, google
+AGENT_MODEL=
+
+# Option B — pin an exact model (overrides MODEL_PROVIDER)
+MODEL_PROVIDER=openai
+AGENT_MODEL=openai/gpt-4o-mini
+```
+
+Provider defaults:
+
+| `MODEL_PROVIDER` | Default `AGENT_MODEL` | Required key |
+| --- | --- | --- |
+| `ollama` | `ollama-cloud/gpt-oss:120b` | `OLLAMA_API_KEY` |
+| `openai` | `openai/gpt-4.1` | `OPENAI_API_KEY` |
+| `google` | `google/gemini-2.5-flash` | `GOOGLE_API_KEY` |
+
+The backend validates the matching key at boot and throws if it is missing.
 
 ## Getting Started
 
 ```sh
-pnpm --dir backend install
+make install
 docker compose up -d postgres
 pnpm --dir backend db:migrate
-pnpm --dir backend dev
-```
-
-Open [http://localhost:4111](http://localhost:4111) for Mastra Studio.
-
-For the demo frontend:
-
-```sh
-cp frontend/.env.example frontend/.env.local
-pnpm --dir frontend install
-pnpm --dir frontend dev
-```
-
-Open [http://localhost:3000](http://localhost:3000). Keep `PROJECT_DOCUMENT_API_TOKEN` in `frontend/.env.local` matched to the backend `.env`; the Next.js route handlers proxy requests to Mastra without exposing the shared secret in browser code.
-
-To start both dev servers from the repo root:
-
-```sh
 make dev
 ```
+
+Open [http://localhost:4111](http://localhost:4111) for Mastra Studio and [http://localhost:3000](http://localhost:3000) for the frontend.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
+| `make install` | Install backend and frontend dependencies. |
 | `make dev` | Start both dev servers: Mastra Studio at `localhost:4111` and the frontend at `localhost:3000`. |
+| `make dev-test` | Run local dev verification: Docker Compose config, backend tests, backend typecheck, and frontend typecheck. |
+| `make build` | Build backend and frontend. |
+| `make dev-backend` | Start Mastra Studio from the repo root. |
+| `make dev-frontend` | Start the frontend from the repo root. |
 | `pnpm --dir backend dev` | Start Mastra Studio at `localhost:4111`. |
 | `pnpm --dir backend build` | Build a production-ready Mastra server bundle. |
 | `pnpm --dir backend start` | Run the built server. |
@@ -134,11 +163,29 @@ make dev
 | `pnpm --dir backend db:studio` | Open Drizzle Studio against `DATABASE_URL`. |
 | `pnpm --dir frontend dev` | Start the demo Next.js app at `localhost:3000`. |
 | `pnpm --dir frontend build` | Build the demo frontend. |
-| `make dev-test` | Run local dev verification: Docker Compose config, backend tests, backend typecheck, and frontend typecheck. |
-| `make dev-backend` | Start Mastra Studio from the repo root. |
-| `make dev-frontend` | Start the frontend from the repo root. |
 
-## Frontend API Surface
+## Frontend
+
+The `frontend/` app is a Next.js 16 (App Router) demo built with React 19, Tailwind, shadcn/ui, and `next-themes`. It is intentionally thin: every backend call goes through a server-side route handler that injects `PROJECT_DOCUMENT_API_TOKEN` and forwards to `MASTRA_API_BASE_URL`. The browser never sees the shared secret.
+
+Layout:
+
+| Path | Purpose |
+| --- | --- |
+| `frontend/src/app/page.tsx` | Single-page demo UI: kick off a workflow run, browse artifacts, manage project documents. |
+| `frontend/src/app/layout.tsx` | Root layout, theming, and `sonner` toaster. |
+| `frontend/src/app/api/workflow/run/route.ts` | `POST` proxy to `/demo/workflow/run`. |
+| `frontend/src/app/api/workflow/run/[runId]/route.ts` | `GET` proxy for a single workflow run. |
+| `frontend/src/app/api/projects/[projectId]/documents/route.ts` | `GET`/`POST` proxy for project document list and ingest. |
+| `frontend/src/app/api/projects/[projectId]/documents/[documentId]/route.ts` | `DELETE` proxy for document removal. |
+| `frontend/src/app/api/projects/[projectId]/context/search/route.ts` | `POST` proxy for RAG context search. |
+| `frontend/src/components/demo/` | Workflow run form, artifact viewer, document manager. |
+| `frontend/src/components/ui/` | shadcn/ui primitives. |
+| `frontend/src/lib/` | Shared client helpers and types. |
+
+Run it standalone with `pnpm --dir frontend dev` (the backend must be reachable at `MASTRA_API_BASE_URL`) or together with the backend via `make dev`.
+
+## Backend API Surface (consumed by the frontend)
 
 Custom routes are registered through Mastra at these backend paths:
 
@@ -196,10 +243,23 @@ x-delivery-copilot-token: change-me-in-production
 
 ## RAG Flow
 
-RAG is disabled by default for Ollama-only local runs. To use local Ollama embeddings, pull an embedding model such as `nomic-embed-text` and set:
+RAG is disabled by default. Local Ollama is not required; the backend already embeds chunks through Mastra's model router and the AI SDK. For hosted OpenAI embeddings, set:
+
+```sh
+OPENAI_API_KEY=your-openai-api-key
+RAG_ENABLED=true
+RAG_VECTOR_INDEX=project_document_vectors
+RAG_EMBEDDING_DRIVER=langchain-openai
+RAG_EMBEDDING_MODEL=openai/text-embedding-3-small
+RAG_EMBEDDING_DIMENSION=1536
+```
+
+For the default Mastra embedding driver with a local or custom OpenAI-compatible embedding endpoint, set the provider/model plus the endpoint URL:
 
 ```sh
 RAG_ENABLED=true
+RAG_VECTOR_INDEX=project_document_vectors
+RAG_EMBEDDING_DRIVER=mastra
 RAG_EMBEDDING_MODEL=ollama/nomic-embed-text
 RAG_EMBEDDING_BASE_URL=http://localhost:11434/v1
 RAG_EMBEDDING_DIMENSION=768
@@ -231,6 +291,12 @@ Workflow retrieval:
 
 ## Verification
 
+Run the standard local verification from the repo root:
+
+```sh
+make dev-test
+```
+
 Focused tests:
 
 ```sh
@@ -247,7 +313,7 @@ Typecheck and build:
 
 ```sh
 pnpm --dir backend exec tsc --noEmit
-pnpm --dir backend build
+make build
 ```
 
 ## Notes for Contributors

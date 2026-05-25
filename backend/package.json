@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --experimental-strip-types --test tests/api/demo-workflow-route.test.ts tests/api/project-document-routes.test.ts tests/config/mastra-server-config.test.ts tests/config/model-config.test.ts tests/config/rag-config.test.ts tests/rag/document-service.test.ts tests/rag/document-service-consistency.test.ts tests/rag/retrieval-service.test.ts tests/rag/workflow-retrieval.test.ts tests/structured-output.test.ts",
+    "test": "node --experimental-strip-types --test tests/api/demo-workflow-route.test.ts tests/api/project-document-routes.test.ts tests/config/mastra-server-config.test.ts tests/config/model-config.test.ts tests/config/rag-config.test.ts tests/rag/document-service.test.ts tests/rag/document-service-consistency.test.ts tests/rag/embeddings.test.ts tests/rag/retrieval-service.test.ts tests/rag/vector-store.test.ts tests/rag/workflow-retrieval.test.ts tests/structured-output.test.ts",
     "dev": "mastra dev",
     "build": "mastra build",
     "start": "mastra start",
@@ -20,6 +20,7 @@
     "node": ">=22.13.0"
   },
   "dependencies": {
+    "@langchain/openai": "^1.4.7",
     "@mastra/core": "^1.35.0",
     "@mastra/duckdb": "^1.3.2",
     "@mastra/evals": "^1.2.2",

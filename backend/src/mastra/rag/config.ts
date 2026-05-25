@@ -3,6 +3,9 @@ import { projectDocumentSourceTypes } from "../../db/schema.ts";
 
 type EnvLike = Record<string, string | undefined>;
 
+export const ragEmbeddingDrivers = ["mastra", "langchain-openai"] as const;
+export type RagEmbeddingDriver = (typeof ragEmbeddingDrivers)[number];
+
 function readBoolean(value: string | undefined, fallback: boolean): boolean {
   if (value == null || value === "") return fallback;
   return ["1", "true", "yes", "on"].includes(value.toLowerCase());
@@ -23,6 +26,17 @@ function normalizeBaseUrl(value: string | undefined): string | undefined {
   return readOptionalString(value)?.replace(/\/+$/, "");
 }
 
+function readEmbeddingDriver(value: string | undefined): RagEmbeddingDriver {
+  const driver = readOptionalString(value) ?? "mastra";
+  if ((ragEmbeddingDrivers as readonly string[]).includes(driver)) {
+    return driver as RagEmbeddingDriver;
+  }
+
+  throw new Error(
+    `RAG_EMBEDDING_DRIVER must be one of: ${ragEmbeddingDrivers.join(", ")}`,
+  );
+}
+
 function defaultEmbeddingDimension(model: string | undefined): number {
   if (!model) return 1536;
 
@@ -41,7 +55,8 @@ export function readRagConfig(env: EnvLike = process.env) {
 
   return {
     enabled: readBoolean(env.RAG_ENABLED, Boolean(embeddingModel)),
-    indexName: env.RAG_VECTOR_INDEX ?? "project_documents",
+    indexName: env.RAG_VECTOR_INDEX ?? "project_document_vectors",
+    embeddingDriver: readEmbeddingDriver(env.RAG_EMBEDDING_DRIVER),
     embeddingModel,
     embeddingBaseUrl: normalizeBaseUrl(env.RAG_EMBEDDING_BASE_URL),
     embeddingApiKey: readOptionalString(env.RAG_EMBEDDING_API_KEY),

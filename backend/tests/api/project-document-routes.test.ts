@@ -256,6 +256,31 @@ test("POST /projects/:projectId/documents validates and ingests content", async 
   assert.equal((body as { document: { id: string } }).document.id, "doc-created");
 });
 
+test("POST /projects/:projectId/documents returns a structured error when RAG is disabled", async () => {
+  const deps = createDeps({
+    ingestProjectDocument: async () => {
+      throw new Error("Project RAG is disabled");
+    },
+  });
+  const route = getRoute(deps, "POST", "/projects/:projectId/documents");
+
+  const response = await route.handler(
+    createContext({
+      params: { projectId: "project-1" },
+      body: {
+        sourceName: "QueueLite PRD",
+        sourceType: "prd",
+        content: "# QueueLite\nCustomers scan QR codes.",
+      },
+    }),
+  );
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(await readJson(response), {
+    error: "Project RAG is disabled. Configure RAG_EMBEDDING_MODEL and set RAG_ENABLED=true before indexing documents.",
+  });
+});
+
 test("POST /projects/:projectId/documents rejects invalid JSON body", async () => {
   const deps = createDeps();
   const route = getRoute(deps, "POST", "/projects/:projectId/documents");
