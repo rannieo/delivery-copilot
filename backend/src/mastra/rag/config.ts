@@ -67,7 +67,7 @@ export function readRagConfig(env: EnvLike = process.env) {
     chunkSize: readNumber(env.RAG_CHUNK_SIZE, 800),
     chunkOverlap: readNumber(env.RAG_CHUNK_OVERLAP, 120),
     topK: readNumber(env.RAG_TOP_K, 6),
-    minScore: readNumber(env.RAG_MIN_SCORE, 0.55),
+    minScore: readNumber(env.RAG_MIN_SCORE, 0.2),
   };
 }
 
