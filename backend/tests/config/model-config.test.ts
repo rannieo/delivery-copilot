@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   readModelIdFromEnv,
+  resolveDefaultAgentModel,
   validateModelIdentifier,
   validateModelConfiguration,
   validateModelProviderCredential,
@@ -70,6 +71,38 @@ test("validateModelConfiguration requires an embedding model when RAG is enabled
         env: { OLLAMA_API_KEY: "test-key" },
       }),
     /RAG_ENABLED is true but RAG_EMBEDDING_MODEL is not configured/,
+  );
+});
+
+test("resolveDefaultAgentModel falls back to Ollama when nothing is set", () => {
+  assert.equal(resolveDefaultAgentModel({}), "ollama-cloud/gpt-oss:120b");
+});
+
+test("resolveDefaultAgentModel honors MODEL_PROVIDER=openai", () => {
+  assert.equal(resolveDefaultAgentModel({ MODEL_PROVIDER: "openai" }), "openai/gpt-4.1");
+});
+
+test("resolveDefaultAgentModel accepts the ollama alias", () => {
+  assert.equal(
+    resolveDefaultAgentModel({ MODEL_PROVIDER: "ollama" }),
+    "ollama-cloud/gpt-oss:120b",
+  );
+});
+
+test("resolveDefaultAgentModel lets AGENT_MODEL override MODEL_PROVIDER", () => {
+  assert.equal(
+    resolveDefaultAgentModel({
+      MODEL_PROVIDER: "ollama",
+      AGENT_MODEL: "openai/gpt-4o-mini",
+    }),
+    "openai/gpt-4o-mini",
+  );
+});
+
+test("resolveDefaultAgentModel rejects unknown providers", () => {
+  assert.throws(
+    () => resolveDefaultAgentModel({ MODEL_PROVIDER: "claude" }),
+    /MODEL_PROVIDER must be one of/,
   );
 });
 

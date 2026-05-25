@@ -68,7 +68,7 @@ Each specialist agent produces a structured response. The Markdown artifact live
 - PostgreSQL with `pgvector`
 - Model provider key(s) for the configured models. The default agent model uses `OLLAMA_API_KEY`.
 
-The local Docker Postgres service uses `postgres:16-alpine` and runs `backend/database/init/001-pgvector.sql` on first database initialization.
+The local Docker Postgres service uses `pgvector/pgvector:0.8.2-pg16-trixie` and runs `backend/database/init/001-pgvector.sql` on first database initialization. If you already created the local database with the plain `postgres:16-alpine` image, recreate the container after pulling the new image, then run `CREATE EXTENSION IF NOT EXISTS vector;` in the existing database or reinitialize the volume.
 
 ## Environment
 
@@ -89,11 +89,12 @@ Important settings:
 | `PROJECT_DOCUMENT_API_TOKEN` | Shared secret required by the custom project-document API routes. Send it as `x-delivery-copilot-token`. |
 | `AGENT_MODEL` | Agent model routed through Mastra model router. Defaults to `ollama-cloud/gpt-oss:120b`. |
 | `OLLAMA_API_KEY` | Required when `AGENT_MODEL` uses `ollama-cloud/*`. |
-| `OPENAI_API_KEY` | Optional. Required only when `RAG_EMBEDDING_MODEL` uses `openai/*`. |
+| `OPENAI_API_KEY` | Required when `AGENT_MODEL` or `RAG_EMBEDDING_MODEL` uses `openai/*`. |
 | `MASTRA_STORAGE_DRIVER` | `postgres` by default. Use `libsql` only for local Mastra state experiments. |
 | `WORKSPACE_BASE_PATH` | Local artifact workspace path when `MASTRA_FILESYSTEM_DRIVER=local`. |
 | `RAG_ENABLED` | Enables workflow prompt retrieval and project document search. Defaults off unless `RAG_EMBEDDING_MODEL` is set. |
 | `RAG_VECTOR_INDEX` | PgVector index/table name for document chunks. |
+| `RAG_EMBEDDING_DRIVER` | Embedding adapter. Use `mastra` by default or `langchain-openai` for LangChain OpenAI embeddings. |
 | `RAG_EMBEDDING_MODEL` | Embedding model routed through Mastra model router or an OpenAI-compatible endpoint. |
 | `RAG_EMBEDDING_BASE_URL` | Optional OpenAI-compatible embedding base URL, for example local Ollama at `http://localhost:11434/v1`. |
 | `RAG_EMBEDDING_API_KEY` | Optional key for custom OpenAI-compatible embedding endpoints. |
@@ -194,15 +195,17 @@ RAG is disabled by default. Local Ollama is not required; the backend already em
 OPENAI_API_KEY=your-openai-api-key
 RAG_ENABLED=true
 RAG_VECTOR_INDEX=project_document_vectors
+RAG_EMBEDDING_DRIVER=langchain-openai
 RAG_EMBEDDING_MODEL=openai/text-embedding-3-small
 RAG_EMBEDDING_DIMENSION=1536
 ```
 
-For a local or custom OpenAI-compatible embedding endpoint, set the provider/model plus the endpoint URL:
+For the default Mastra embedding driver with a local or custom OpenAI-compatible embedding endpoint, set the provider/model plus the endpoint URL:
 
 ```sh
 RAG_ENABLED=true
 RAG_VECTOR_INDEX=project_document_vectors
+RAG_EMBEDDING_DRIVER=mastra
 RAG_EMBEDDING_MODEL=ollama/nomic-embed-text
 RAG_EMBEDDING_BASE_URL=http://localhost:11434/v1
 RAG_EMBEDDING_DIMENSION=768
